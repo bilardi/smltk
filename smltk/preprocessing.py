@@ -1,7 +1,6 @@
 """The classes for data preparation with nltk, sklearn and more
 
     A collection of methods to simplify your code.
-
 """
 import re
 import string
@@ -20,12 +19,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class Ntk():
     """
     The class Ntk contains the Natural Language Processing tool kit.
-    It needs the property named **params** (dict)
-        :param language (str): default is english
-        :param lemmatizer (obj): obj with method lemmatize() like WordNetLemmatizer()
-        :param min_length (int): default is 1, so all words will be used
-        :param stop_words (list[str]): default is stopwords.words()
-        :param tag_map (dict): default contains J, V, R
+
+    Arguments: params (dict) with the keys below
+        :language (str): default is english
+        :lemmatizer (obj): obj with method lemmatize() like WordNetLemmatizer()
+        :min_length (int): default is 1, so all words will be used
+        :stop_words (list[str]): default is stopwords.words()
+        :tag_map (dict): default contains J, V, R
 
     Here's an example:
 
@@ -68,9 +68,10 @@ class Ntk():
 
     def word_tokenize(self, doc):
         """
-        splits document in each word
+            Splits document in each word
+
             Arguments:
-                doc (str): text
+                :doc (str): text
             Returns:
                 list of words
         """
@@ -78,11 +79,12 @@ class Ntk():
 
     def tokenize_and_clean_doc(self, doc):
         """
-        tokenizes doc
-        and filters tokens from punctuation, numbers, stop words, and words <= min_length
-        and changes upper characters in lower characters
+            Tokenizes doc
+            and filters tokens from punctuation, numbers, stop words, and words <= min_length
+            and changes upper characters in lower characters
+
             Arguments:
-                doc (str): text
+                :doc (str): text
             Returns:
                 list of words filtered
         """
@@ -104,9 +106,10 @@ class Ntk():
 
     def lemmatize(self, tokens):
         """
-        lemmatizes tokens
+            Lemmatizes tokens
+
             Arguments:
-                tokens (list[str]): list of words
+                :tokens (list[str]): list of words
             Returns:
                 list of tokens lemmatized
         """
@@ -116,13 +119,14 @@ class Ntk():
 
     def get_tokens_cleaned(self, doc, is_lemma = True):
         """
-        tokenizes doc
-        and filters tokens from punctuation, numbers, stop words, and words <= min_length
-        and changes upper characters in lower characters
-        and if is_lemma == True, also it lemmatizes
+            Tokenizes doc
+            and filters tokens from punctuation, numbers, stop words, and words <= min_length
+            and changes upper characters in lower characters
+            and if is_lemma == True, also it lemmatizes
+
             Arguments:
-                doc (str): text
-                is_lemma (bool): default is True
+                :doc (str): text
+                :is_lemma (bool): default is True
             Returns:
                 list of tokens cleaned
         """
@@ -133,9 +137,10 @@ class Ntk():
 
     def __call__(self, doc):
         """
-        alias of get_tokens_cleaned for using in models
+            Alias of get_tokens_cleaned for using in models
+
             Arguments:
-                doc (str): text
+                :doc (str): text
             Returns:
                 list of tokens cleaned
         """
@@ -143,12 +148,13 @@ class Ntk():
 
     def get_doc_cleaned(self, doc, is_lemma = True):
         """
-        filters doc from punctuation, numbers, stop words, and words <= min_length
-        and changes upper characters in lower characters
-        and if is_lemma == True, also it lemmatizes
+            Filters doc from punctuation, numbers, stop words, and words <= min_length
+            and changes upper characters in lower characters
+            and if is_lemma == True, also it lemmatizes
+
             Arguments:
-                doc (str): text
-                is_lemma (bool): default is True
+                :doc (str): text
+                :is_lemma (bool): default is True
             Returns:
                 string cleaned
         """
@@ -157,11 +163,12 @@ class Ntk():
 
     def add_doc_to_vocab(self, doc, vocab, is_lemma = True):
         """
-        adds tokens of that doc to vocabulary and updates vocabulary
+            Adds tokens of that doc to vocabulary and updates vocabulary
+
             Arguments:
-                doc (str): text
-                vocab (list[str]): list of tokens
-                is_lemma (bool): default is True
+                :doc (str): text
+                :vocab (list[str]): list of tokens
+                :is_lemma (bool): default is True
             Returns:
                 list of tokens of that doc and vocab updated
         """
@@ -171,10 +178,11 @@ class Ntk():
 
     def create_vocab_from_docs(self, docs, is_lemma = True):
         """
-        creates vocabulary from list of docs
+            Creates vocabulary from list of docs
+
             Arguments:
-                docs (list[str]): list of texts
-                is_lemma (bool): default is True
+                :docs (list[str]): list of texts
+                :is_lemma (bool): default is True
             Returns:
                 list of tokens
         """
@@ -184,10 +192,11 @@ class Ntk():
 
     def get_stats_vocab(self, vocab, min_occurance = 1):
         """
-        gets statistics of vocabulary
+            Gets statistics of vocabulary
+
             Arguments:
-                vocab (list[str]): list of tokens
-                min_occurance (int): minimum occurance considered
+                :vocab (list[str]): list of tokens
+                :min_occurance (int): minimum occurance considered
             Returns:
                 tuple of tokens number with >= min_occurance and total tokens number
         """
@@ -198,10 +207,11 @@ class Ntk():
 
     def create_tuples(self, docs = [], target = []):
         """
-        creates tuples with sample and its target
+            Creates tuples with sample and its target
+
             Arguments:
-                docs (list[str]): list of texts
-                target (list[str]): list of targets
+                :docs (list[str]): list of texts
+                :target (list[str]): list of targets
             Returns:
                 list of tuples with sample and its target
         """
@@ -209,10 +219,11 @@ class Ntk():
 
     def create_vocab_from_tuples(self, tuples, is_lemma = True):
         """
-        creates vocabulary from list of tuples
+            Creates vocabulary from list of tuples
+
             Arguments:
-                tuples (list[tuples]): list of tuples with sample and its target
-                is_lemma (bool): default is True
+                :tuples (list[tuples]): list of tuples with sample and its target
+                :is_lemma (bool): default is True
             Returns:
                 list of tokens
         """
@@ -222,10 +233,11 @@ class Ntk():
 
     def find_features(self, doc, is_lemma = True):
         """
-        finds features
+            Finds features
+
             Arguments:
-                doc (str): text
-                is_lemma (bool): default is True
+                :doc (str): text
+                :is_lemma (bool): default is True
             Returns:
                 dictionary of tokens cleaned
         """
@@ -237,10 +249,11 @@ class Ntk():
 
     def create_features(self, tuples, is_lemma = True):
         """
-        creates features
+            Creates features
+
             Arguments:
-                tuples (list[tuples]): list of tuples with sample and its target
-                is_lemma (bool): default is True
+                :tuples (list[tuples]): list of tuples with sample and its target
+                :is_lemma (bool): default is True
             Returns:
                 list of tuples with features and relative target
         """
@@ -248,11 +261,12 @@ class Ntk():
 
     def vectorize_docs(self, docs, is_count = True, is_lemma = True):
         """
-        vectorizes docs
+            Vectorizes docs
+
             Arguments:
-                docs (list[str]): list of texts
-                is_count (bool): default is True
-                is_lemma (bool): default is True
+                :docs (list[str]): list of texts
+                :is_count (bool): default is True
+                :is_lemma (bool): default is True
             Returns:
                 list of scipy.sparse.csr.csr_matrix, one for each doc
         """

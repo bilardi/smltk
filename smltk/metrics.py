@@ -1,10 +1,6 @@
 """The class for testing models and reporting results
 
-A collection of methods to simplify your code.
-
-# license MIT
-# author Alessandra Bilardi <alessandra.bilardi@gmail.com>
-# see https://github.com/bilardi/smltk for details
+    A collection of methods to simplify your code.
 """
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
@@ -18,9 +14,10 @@ import pickle
 class Metrics():
     def split_tuples(self, tuples):
         """
-        splits tuples of sample and its target in the relative lists
+            Splits tuples of sample and its target in the relative lists
+
             Arguments:
-                tuples (list[tuple]): list of tuples with sample and its target
+                :uples (list[tuple]): list of tuples with sample and its target
             Returns:
                 tuple of list of samples and list of targets
         """
@@ -33,11 +30,12 @@ class Metrics():
 
     def prediction(self, model, method, X_test, y_test = []):
         """
-        predicts with your model
+            Predicts with your model
+
             Arguments:
-                model (obj): object of your model
-                X_test (list[]|list[tuple]): list of samples or list of tuples with sample and its target
-                y_test (list[]): list of targets
+                :model (obj): object of your model
+                :X_test (list[]|list[tuple]): list of samples or list of tuples with sample and its target
+                :y_test (list[]): list of targets
             Returns:
                 tuple of list of targets and list of predictions
         """
@@ -51,10 +49,11 @@ class Metrics():
 
     def create_confusion_matrix(self, y_test, y_pred):
         """
-        creates and prints confusion matrix
+            Creates and prints confusion matrix
+
             Arguments:
-                y_test (list[]): list of targets
-                y_pred (list[]): list of predictions
+                :y_test (list[]): list of targets
+                :y_pred (list[]): list of predictions
             Returns:
                 confusion matrix
         """
@@ -63,20 +62,20 @@ class Metrics():
         sns.heatmap(matrix.T, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
         return matrix
 
-    def get_classification_metrics(self, params = []):
+    def get_classification_metrics(self, params = {}):
         """
-        gets classification metrics
-            Arguments:
-                params (dict):
-                    model (obj): object of your model
-                    X_train (list[]|list[tuple]): list of samples or list of tuples with sample and its target
-                    y_train (list[]): list of targets
-                    X_test (list[]|list[tuple]): list of samples or list of tuples with sample and its target
-                    y_test (list[]): list of targets
-                    y_pred (list[]): list of predictions
-                    loss (str): parameter of bias_variance_decomp, default mse
-                    num_rounds (int): parameter of bias_variance_decomp, default 200
-                    random_seed (int): parameter of bias_variance_decomp, default 3
+            Gets classification metrics
+
+            Arguments: params (dict) with the keys below
+                :model (obj): object of your model
+                :X_train (list[]|list[tuple]): list of samples or list of tuples with sample and its target
+                :y_train (list[]): list of targets
+                :X_test (list[] | list[tuple]): list of samples or list of tuples with sample and its target
+                :y_test (list[]): list of targets
+                :y_pred (list[]): list of predictions
+                :loss (str): parameter of bias_variance_decomp, default mse
+                :num_rounds (int): parameter of bias_variance_decomp, default 200
+                :random_seed (int): parameter of bias_variance_decomp, default 3
             Returns:
                 dictionary with MSE, Bias, Variance, Accuracy, Precision, Recall, Fscore
         """
@@ -98,9 +97,10 @@ class Metrics():
 
     def print_metrics(self, metrics):
         """
-        prints metrics
+            Prints metrics
+
             Arguments:
-                metrics (dict): dictionary of metrics with their value
+                :metrics (dict): dictionary of metrics with their value
             Returns:
                 only the print of metrics
         """
@@ -109,19 +109,21 @@ class Metrics():
 
     def save_model(self, model, filename):
         """
-        saves model
+            Saves model
+
             Arguments:
-                model (obj): object of your model
-                filename (str): pathname and filename where you want to save your model
+                :model (obj): object of your model
+                :filename (str): pathname and filename where you want to save your model
         """
         with open(filename, 'wb') as pickle_file:
             pickle.dump(model, pickle_file)
 
     def resume_model(self, filename):
         """
-        resumes model
+            Resumes model
+
             Arguments:
-                filename (str): pathname and filename where you want to save your model
+                :filename (str): pathname and filename where you want to save your model
             Returns:
                 object of your model
         """

@@ -13,6 +13,7 @@ This package contains the classes to manage data preprocessing, testing and repo
    :caption: Contents:
 
    overview
+   api
    usage
    development
 
