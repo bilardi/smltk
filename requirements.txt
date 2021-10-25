@@ -1,2 +1,4 @@
+mlxtend
 nltk
+seaborn
 sklearn
