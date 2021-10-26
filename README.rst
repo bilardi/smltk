@@ -2,10 +2,11 @@ Getting started
 ===============
 
 smltk (Simple Machine Learning Tool Kit) package is implemented for helping your work during
+
 * data preparation
 * testing your model
 
-The goal is to implement this package for each step of machine learning process and to simplify your code.
+The goal is to implement this package for each step of machine learning process that can simplify your code.
 
 It is part of the `educational repositories <https://github.com/pandle/materials>`_ to learn how to write stardard code and common uses of the TDD.
 
