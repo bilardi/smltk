@@ -3,3 +3,7 @@ sphinx_rtd_theme
 rst2pdf
 nbsphinx
 smltk
+mlxtend
+nltk
+seaborn
+sklearn
