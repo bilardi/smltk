@@ -5,16 +5,23 @@
 import re
 import string
 import nltk
+nltk.download('punkt')
 nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
 nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
 from collections import defaultdict
 from collections import Counter
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+#%matplotlib inline
+from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.sentiment import SentimentIntensityAnalyzer
 
 class Ntk():
     """
@@ -41,6 +48,8 @@ class Ntk():
     min_length = 1
     stop_words = []
     tag_map = {}
+    sia = None
+    vectorizer = None
 
     def __init__(self, params = []):
         if 'language' in params:
@@ -65,6 +74,7 @@ class Ntk():
         if not len(self.tag_map):
             for pos in ['E', 'D', 'J', 'N', 'V', 'R']:
                 self.tag_map[pos] = wn.NOUN
+        self.sia = SentimentIntensityAnalyzer()
 
     def word_tokenize(self, doc):
         """
@@ -167,7 +177,7 @@ class Ntk():
 
             Arguments:
                 :doc (str): text
-                :vocab (list[str]): list of tokens
+                :vocab (collections.Counter): dictionary of tokens with its count
                 :is_lemma (bool): default is True
             Returns:
                 list of tokens of that doc and vocab updated
@@ -184,7 +194,7 @@ class Ntk():
                 :docs (list[str]): list of texts
                 :is_lemma (bool): default is True
             Returns:
-                list of tokens
+                dictionary of tokens with its count in an object collections.Counter
         """
         vocab = Counter()
         [self.add_doc_to_vocab(doc, vocab, is_lemma) for doc in docs]
@@ -195,7 +205,7 @@ class Ntk():
             Gets statistics of vocabulary
 
             Arguments:
-                :vocab (list[str]): list of tokens
+                :vocab (collections.Counter): dictionary of tokens with its count
                 :min_occurance (int): minimum occurance considered
             Returns:
                 tuple of tokens number with >= min_occurance and total tokens number
@@ -225,41 +235,132 @@ class Ntk():
                 :tuples (list[tuples]): list of tuples with sample and its target
                 :is_lemma (bool): default is True
             Returns:
-                list of tokens
+                dictionary of tokens with its count in an object collections.Counter
         """
         vocab = Counter()
         [self.add_doc_to_vocab(doc, vocab, is_lemma) for doc, target in tuples]
         return vocab
 
-    def find_features(self, doc, is_lemma = True):
+    def get_words_top(self, vocab, how_many):
         """
-            Finds features
+            Gets words top for each target
+
+            Arguments:
+                :vocab (collections.Counter): dictionary of tokens with its count
+                :how_many (int): how many words in your top how_many list
+            Returns:
+                dictionary of the top how_many list
+        """
+        return {word for word, count in vocab.most_common(how_many)}
+
+    def get_vocabs_cleaned(self, vocabs):
+        """
+            Cleans vocabs from common words among targets
+
+            Arguments:
+                :vocabs (dict): keys are targets, values are vocabularies for that target
+            Returns:
+                vocabs cleaned from common words among targets
+        """
+        targets = vocabs.keys()
+        for target1 in targets:
+            for target2 in targets:
+                if target1 != target2:
+                    common_set = set(vocabs[target1]).intersection(vocabs[target2])
+                    for word in common_set:
+                        del vocabs[target1][word]
+                        del vocabs[target2][word]
+        return vocabs
+
+    def get_features(self, doc, is_lemma = True, words_top = {}):
+        """
+            Gets features
 
             Arguments:
                 :doc (str): text
                 :is_lemma (bool): default is True
+                :words_top (dict): dictionary of the words top
             Returns:
-                dictionary of tokens cleaned
+                dictionary of features extracted
         """
         tokens = self.get_tokens_cleaned(doc, is_lemma)
-        features = {}
+        features = {'words_top': 0}
         for token in tokens:
-            features[token] = True
+            if token in words_top:
+                features['words_top'] += 1
+        features.update(self.sia.polarity_scores(doc))
         return features
 
-    def create_features(self, tuples, is_lemma = True):
+    def get_features_from_docs(self, docs, is_lemma = True, words_top = {}):
         """
-            Creates features
+            Gets features
+
+            Arguments:
+                :docs (list[str]): list of text
+                :is_lemma (bool): default is True
+                :words_top (dict): dictionary of the words top
+            Returns:
+                dictionary of features extracted
+        """
+        return [self.get_features(doc, is_lemma, words_top) for doc in docs]
+
+    def create_features_from_docs(self, docs, target, is_lemma = True, words_top = {}):
+        """
+            Creates features from docs
+
+            Arguments:
+                :docs (list[str]): list of text
+                :target (str): target name of the docs
+                :is_lemma (bool): default is True
+                :words_top (dict): dictionary of the words top
+            Returns:
+                list of tuples with features and relative target
+        """
+        return [(self.get_features(doc, is_lemma, words_top), target) for doc in docs]
+
+    def create_features_from_tuples(self, tuples, is_lemma = True, words_top = {}):
+        """
+            Creates features from tuples
 
             Arguments:
                 :tuples (list[tuples]): list of tuples with sample and its target
                 :is_lemma (bool): default is True
+                :words_top (dict): dictionary of the words top
             Returns:
                 list of tuples with features and relative target
         """
-        return [(self.find_features(doc, is_lemma), target) for (doc, target) in tuples]
+        return [(self.get_features(doc, is_lemma, words_top), target) for (doc, target) in tuples]
 
-    def vectorize_docs(self, docs, is_count = True, is_lemma = True):
+    def create_words_map(self, words):
+        """
+            Creates the map of words
+
+            Arguments:
+                :words (list[str]): words list
+            Returns:
+                string of all words
+        """
+        lower = [sentence.lower() for sentence in words]
+        return ' '.join(map(str, lower))
+
+    def create_words_cloud(self, words, is_test = False):
+        """
+            Creates the cloud of words
+
+            Arguments:
+                :words (str): words
+                :is_test (bool): default is False
+            Returns:
+                only words cloud plot
+        """
+        words_cloud = WordCloud(width=1200, height=800, background_color="white").generate(words)
+        if is_test == False:
+            plt.imshow(words_cloud)
+            plt.axis('off')
+            plt.show()
+        return words_cloud
+
+    def vectorize_docs(self, docs, is_count = True, is_lemma = False, is_test = False):
         """
             Vectorizes docs
 
@@ -267,11 +368,20 @@ class Ntk():
                 :docs (list[str]): list of texts
                 :is_count (bool): default is True
                 :is_lemma (bool): default is True
+                :is_test (bool): default is False
             Returns:
                 list of scipy.sparse.csr.csr_matrix, one for each doc
         """
-        if is_count == True:
+        if type(docs) == list and type(docs[0]) == dict:
+            vectorizer = DictVectorizer()
+        elif is_count == True:
             vectorizer = CountVectorizer()
         else:
             vectorizer = TfidfVectorizer()
-        return vectorizer.fit_transform(docs)
+        if is_lemma == True:
+            docs = [self.get_doc_cleaned(doc) for doc in docs]
+        if is_test == True:            
+            return self.vectorizer.transform(docs)
+        else:
+            self.vectorizer = vectorizer
+            return self.vectorizer.fit_transform(docs)

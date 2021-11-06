@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-11-06
+
+### Added
+- in the class Ntk, the methods get_words_top, get_vocabs_cleaned, get_features_from_docs, create_features_from_docs, create_words_map, create_words_cloud
+
+### Changed
+- rename method from Ntk.find_features to Ntk.get_features and its return
+- rename method from Ntk.create_features to Ntk.create_features_from_tuples and its return
+- defaults of Ntk.vectorize_docs
+- defaults of Metrics.create_confusion_matrix
+- notebook named usage
+
+### Fixed
+- documentation of some methods
+
 ## [0.1.0] - 2021-10-26
 
 ### Added
@@ -35,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/bilardi/smltk/releases/tag/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/bilardi/smltk/releases/tag/v0.0.3...v0.1.0
 [0.0.3]: https://github.com/bilardi/smltk/releases/tag/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/bilardi/smltk/releases/tag/v0.0.1...v0.0.2

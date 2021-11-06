@@ -17,7 +17,7 @@ class Metrics():
             Splits tuples of sample and its target in the relative lists
 
             Arguments:
-                :uples (list[tuple]): list of tuples with sample and its target
+                :tuples (list[tuple]): list of tuples with sample and its target
             Returns:
                 tuple of list of samples and list of targets
         """
@@ -34,6 +34,7 @@ class Metrics():
 
             Arguments:
                 :model (obj): object of your model
+                :method (str): name of method
                 :X_test (list[]|list[tuple]): list of samples or list of tuples with sample and its target
                 :y_test (list[]): list of targets
             Returns:
@@ -47,19 +48,21 @@ class Metrics():
             y_pred.append(predictor(sample))
         return y_test, y_pred
 
-    def create_confusion_matrix(self, y_test, y_pred):
+    def create_confusion_matrix(self, y_test, y_pred, is_test = False):
         """
             Creates and prints confusion matrix
 
             Arguments:
                 :y_test (list[]): list of targets
                 :y_pred (list[]): list of predictions
+                :is_test (bool): default is False
             Returns:
                 confusion matrix
         """
         matrix = confusion_matrix(y_test, y_pred)
-        tick_labels = np.unique(np.array(y_test + y_pred))
-        sns.heatmap(matrix.T, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
+        tick_labels = np.unique(np.array([y_test, y_pred]))
+        if is_test == False:
+            sns.heatmap(matrix.T, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
         return matrix
 
     def get_classification_metrics(self, params = {}):
@@ -79,18 +82,18 @@ class Metrics():
             Returns:
                 dictionary with MSE, Bias, Variance, Accuracy, Precision, Recall, Fscore
         """
-        if 'loss' not in params:
-            params['loss'] = 'mse'
-        if 'num_rounds' not in params:
-            params['num_rounds'] = 200
-        if 'random_seed' not in params:
-            params['random_seed'] = 3
-        fit_exists = hasattr(params['model'], 'fit') and callable(getattr(params['model'], 'fit'))
-        predict_exists = hasattr(params['model'], 'predict') and callable(getattr(params['model'], 'predict'))
-        if fit_exists == True or predict_exists == True:
-            mse, bias, variance = bias_variance_decomp(params['model'], params['X_train'], params['y_train'], params['X_test'], params['y_test'], loss=params['loss'], num_rounds=params['num_rounds'], random_seed=params['random_seed'])
-        else:
-            mse, bias, variance = (0, 0, 0)
+        mse, bias, variance = (0, 0, 0)
+        if 'model' in params:
+            fit_exists = hasattr(params['model'], 'fit') and callable(getattr(params['model'], 'fit'))
+            predict_exists = hasattr(params['model'], 'predict') and callable(getattr(params['model'], 'predict'))
+            if fit_exists == True or predict_exists == True:
+                if 'loss' not in params:
+                    params['loss'] = 'mse'
+                if 'num_rounds' not in params:
+                    params['num_rounds'] = 200
+                if 'random_seed' not in params:
+                    params['random_seed'] = 3
+                mse, bias, variance = bias_variance_decomp(params['model'], params['X_train'], params['y_train'], params['X_test'], params['y_test'], loss=params['loss'], num_rounds=params['num_rounds'], random_seed=params['random_seed'])
         accuracy = accuracy_score(params['y_test'], params['y_pred'])
         report = precision_recall_fscore_support(params['y_test'], params['y_pred'])
         return {'MSE': mse, 'Bias': bias, 'Variance': variance, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2]}

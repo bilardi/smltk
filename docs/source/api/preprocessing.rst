@@ -21,7 +21,12 @@ Natural Language Tool Kit
     smltk.preprocessing.Ntk.create_vocab_from_docs
     smltk.preprocessing.Ntk.create_vocab_from_tuples
     smltk.preprocessing.Ntk.get_stats_vocab
-    smltk.preprocessing.Ntk.create_features
+    smltk.preprocessing.Ntk.get_words_top
+    smltk.preprocessing.Ntk.get_vocabs_cleaned
+    smltk.preprocessing.Ntk.create_features_from_docs
+    smltk.preprocessing.Ntk.create_features_from_tuples
+    smltk.preprocessing.Ntk.create_words_map
+    smltk.preprocessing.Ntk.create_words_cloud
     smltk.preprocessing.Ntk.vectorize_docs
 
 Detailed list

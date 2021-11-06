@@ -1,11 +1,13 @@
 import unittest
 from smltk.preprocessing import Ntk
 import nltk
-nltk.download('punkt')
 from nltk.stem import WordNetLemmatizer
+from collections import Counter
 import scipy
+import numpy as np
+import pandas as pd
 
-class TestNlp(unittest.TestCase, Ntk):
+class TestNtk(unittest.TestCase, Ntk):
     ntk = None
     doc = 'Good case, Excellent value. I am agree. There is a mistake. Item Does Not Match Picture.'
     docs = []
@@ -35,17 +37,37 @@ class TestNlp(unittest.TestCase, Ntk):
         self.assertEqual(self.ntk.get_stats_vocab(vocab_lemma), (9, 9))
         self.assertEqual(self.ntk.get_stats_vocab(vocab_lemma, 2), (0, 9))
 
-        features_token = self.ntk.create_features(self.tuples, False)
-        self.assertEqual(features_token[1], ({'agree': True}, 1))
+        features_token = self.ntk.create_features_from_tuples(self.tuples, False)
+        self.assertEqual(features_token[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
-        features_lemma = self.ntk.create_features(self.tuples, True)
-        self.assertEqual(features_lemma[1], ({'agree': True}, 1))
+        features_token = self.ntk.create_features_from_docs(self.docs[:2], 1, False)
+        features_token.extend(self.ntk.create_features_from_docs(self.docs[2:], 0, False))
+        self.assertEqual(features_token[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        features_lemma = self.ntk.create_features_from_docs(self.docs[:2], 1, True)
+        features_lemma.extend(self.ntk.create_features_from_docs(self.docs[2:], 0, True))
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        words_top = self.ntk.get_words_top(vocab_token, 4)
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True, words_top)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        features_lemma = self.ntk.create_features_from_docs(self.docs[:2], 1, True, words_top)
+        features_lemma.extend(self.ntk.create_features_from_docs(self.docs[2:], 0, True, words_top))
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
         docs_cleaned = []
         for doc in self.docs:
             docs_cleaned.append(self.ntk.get_doc_cleaned(doc, False))
         tuples = self.ntk.create_tuples(docs_cleaned, self.target)
         vocab_token = self.ntk.create_vocab_from_tuples(tuples, False)
+        self.assertEqual(self.ntk.get_stats_vocab(vocab_token), (9, 9))
+        self.assertEqual(self.ntk.get_stats_vocab(vocab_token, 2), (0, 9))
+
+        vocab_token = self.ntk.create_vocab_from_docs(docs_cleaned, False)
         self.assertEqual(self.ntk.get_stats_vocab(vocab_token), (9, 9))
         self.assertEqual(self.ntk.get_stats_vocab(vocab_token, 2), (0, 9))
 
@@ -72,11 +94,15 @@ class TestNlp(unittest.TestCase, Ntk):
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma), (15, 15))
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma, 2), (1, 15))
 
-        features_token = ntk.create_features(self.tuples, False)
-        self.assertEqual(features_token[1], ({'agree': True, 'am': True, 'i': True}, 1))
+        features_token = ntk.create_features_from_tuples(self.tuples, False)
+        self.assertEqual(features_token[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
-        features_lemma = ntk.create_features(self.tuples, True)
-        self.assertEqual(features_lemma[1], ({'agree': True, 'be': True, 'i': True}, 1))
+        features_lemma = ntk.create_features_from_tuples(self.tuples, True)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        words_top = self.ntk.get_words_top(vocab_token, 4)
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True, words_top)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
         docs_cleaned = []
         for doc in self.docs:
@@ -113,11 +139,15 @@ class TestNlp(unittest.TestCase, Ntk):
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma), (13, 13))
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma, 2), (1, 13))
 
-        features_token = ntk.create_features(self.tuples, False)
-        self.assertEqual(features_token[1], ({'agree': True, 'am': True}, 1))
+        features_token = ntk.create_features_from_tuples(self.tuples, False)
+        self.assertEqual(features_token[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
-        features_lemma = ntk.create_features(self.tuples, True)
-        self.assertEqual(features_lemma[1], ({'agree': True, 'be': True}, 1))
+        features_lemma = ntk.create_features_from_tuples(self.tuples, True)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        words_top = self.ntk.get_words_top(vocab_token, 4)
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True, words_top)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
         docs_cleaned = []
         for doc in self.docs:
@@ -151,11 +181,15 @@ class TestNlp(unittest.TestCase, Ntk):
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma), (16, 16))
         self.assertEqual(ntk.get_stats_vocab(vocab_lemma, 2), (0, 16))
 
-        features_token = ntk.create_features(self.tuples, False)
-        self.assertEqual(features_token[1], ({'agree': True, 'am': True, 'i': True}, 1))
+        features_token = ntk.create_features_from_tuples(self.tuples, False)
+        self.assertEqual(features_token[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
-        features_lemma = ntk.create_features(self.tuples, True)
-        self.assertEqual(features_lemma[1], ({'agree': True, 'am': True, 'i': True}, 1))
+        features_lemma = ntk.create_features_from_tuples(self.tuples, True)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
+
+        words_top = self.ntk.get_words_top(vocab_token, 4)
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True, words_top)
+        self.assertEqual(features_lemma[1], ({'words_top': 0, 'neg': 0.0, 'neu': 0.286, 'pos': 0.714, 'compound': 0.3612}, 1))
 
         docs_cleaned = []
         for doc in self.docs:
@@ -173,11 +207,71 @@ class TestNlp(unittest.TestCase, Ntk):
         self.assertEqual(ntk.get_stats_vocab(vocab_token), (16, 16))
         self.assertEqual(ntk.get_stats_vocab(vocab_token, 2), (0, 16))
 
+    def test_get_words_top(self):
+        vocabs = Counter({'one': 10, 'two': 8, 'three': 4, 'four': 2, 'five': 0, 'six': 1})
+        vocabs_cleaned = self.ntk.get_words_top(vocabs, 4)
+        self.assertEqual(vocabs_cleaned, {'one', 'two', 'three', 'four'})
+
+    def test_get_vocabs_cleaned(self):
+        vocabs = {'one': Counter({'uno':1, 'uno':2, 'hm':3}), 'two': Counter({'due':2, 'dos':3, 'hm':4})}
+        vocabs_cleaned = self.ntk.get_vocabs_cleaned(vocabs)
+        self.assertEqual(vocabs_cleaned, {'one': Counter({'uno':1, 'uno':2}), 'two': Counter({'due':2, 'dos':3})})
+        self.assertEqual(vocabs_cleaned, {'one': {'uno':1, 'uno':2}, 'two': {'due':2, 'dos':3}})
+        vocabs = {'one': {'uno':1, 'uno':2, 'hm':3}, 'two': {'due':2, 'dos':3, 'hm':4}}
+        vocabs_cleaned = self.ntk.get_vocabs_cleaned(vocabs)
+        self.assertEqual(vocabs_cleaned, {'one': Counter({'uno':1, 'uno':2}), 'two': Counter({'due':2, 'dos':3})})
+        self.assertEqual(vocabs_cleaned, {'one': {'uno':1, 'uno':2}, 'two': {'due':2, 'dos':3}})
+
+    def create_words_map(self):
+        tokens = self.ntk.get_tokens_cleaned(self.doc)
+        return self.ntk.create_words_map(tokens)
+
+    def test_create_words_map(self):
+        words_map = self.create_words_map()
+        self.assertEqual(words_map, self.default_doc_filtered)
+
+    def test_create_words_cloud(self):
+        words_map = self.create_words_map()
+        words_cloud = self.ntk.create_words_cloud(words_map, True)
+        np.testing.assert_array_equal(words_cloud.words_, {'good': 1.0, 'case': 1.0, 'excellent': 1.0, 'value': 1.0, 'agree': 1.0, 'mistake': 1.0, 'item': 1.0, 'match': 1.0, 'picture': 1.0})
+
     def test_vectorize_docs(self):
-        X_test = self.ntk.vectorize_docs(self.docs)
-        self.assertEqual(type(X_test[0]), scipy.sparse.csr.csr_matrix)
-        X_test = self.ntk.vectorize_docs(self.docs, False)
-        self.assertEqual(type(X_test[0]), scipy.sparse.csr.csr_matrix)
+        data = pd.DataFrame(self.docs, columns=['text'])
+        features = self.ntk.get_features_from_docs(self.docs)
+        features_df = pd.DataFrame.from_dict(features, orient='columns')
+        data = pd.concat([data, features_df], axis='columns')
+        features_mix = data[['text', 'words_top', 'neg', 'neu', 'pos', 'compound']].to_dict(orient="records")
+
+        X_train_dict = self.ntk.vectorize_docs(features_mix)
+        self.assertEqual(type(X_train_dict[0]), scipy.sparse.csr.csr_matrix)
+        vectorizer_dict = self.ntk.vectorizer
+        self.assertEqual(len(vectorizer_dict.vocabulary_), 9)
+        X_test_dict = self.ntk.vectorize_docs(features_mix, is_test = True)
+        self.assertEqual(type(X_test_dict[0]), scipy.sparse.csr.csr_matrix)
+
+        X_train_count = self.ntk.vectorize_docs(self.docs)
+        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr.csr_matrix)
+        vectorizer_count = self.ntk.vectorizer
+        self.assertEqual(len(vectorizer_count.vocabulary_), 14)
+        X_test_count = self.ntk.vectorize_docs(self.docs, is_test = True)
+        self.assertEqual(type(X_test_count[0]), scipy.sparse.csr.csr_matrix)
+
+        X_train_tfidf = self.ntk.vectorize_docs(self.docs, False)
+        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr.csr_matrix)
+        vectorizer_tfidf = self.ntk.vectorizer
+        self.assertEqual(len(vectorizer_tfidf.vocabulary_), 14)
+        X_test_tfidf = self.ntk.vectorize_docs(self.docs, is_test = True)
+        self.assertEqual(type(X_test_tfidf[0]), scipy.sparse.csr.csr_matrix)
+
+        X_train_count = self.ntk.vectorize_docs(self.docs, is_lemma = True)
+        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr.csr_matrix)
+        vectorizer_lemma = self.ntk.vectorizer
+        self.assertEqual(len(vectorizer_lemma.vocabulary_), 9)
+
+        X_train_tfidf = self.ntk.vectorize_docs(self.docs, is_count = False, is_lemma = True)
+        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr.csr_matrix)
+        vectorizer_lemma = self.ntk.vectorizer
+        self.assertEqual(len(vectorizer_lemma.vocabulary_), 9)
 
 if __name__ == '__main__':
     unittest.main()

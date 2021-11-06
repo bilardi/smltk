@@ -2,3 +2,4 @@ mlxtend
 nltk
 seaborn
 sklearn
+wordcloud

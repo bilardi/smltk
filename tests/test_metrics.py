@@ -2,8 +2,11 @@ import unittest
 from smltk.metrics import Metrics
 from smltk.preprocessing import Ntk
 import nltk
-nltk.download('punkt')
 import numpy as np
+import pandas as pd
+from sklearn.datasets import load_wine
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import SGDClassifier
 import os
 
 class TestMetrics(unittest.TestCase, Metrics):
@@ -22,7 +25,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         unittest.TestCase.__init__(self, *args, **kwargs)
 
     def training(self):
-        features_lemma = self.ntk.create_features(self.tuples, True)
+        features_lemma = self.ntk.create_features_from_tuples(self.tuples, True)
         classifier = nltk.NaiveBayesClassifier.train(features_lemma)
         return classifier, features_lemma
 
@@ -42,12 +45,12 @@ class TestMetrics(unittest.TestCase, Metrics):
 
     def test_create_confusion_matrix(self):
         y_test, y_pred = self.prediction()
-        np.testing.assert_array_equal(self.mtr.create_confusion_matrix(y_test, y_pred), [[2, 0], [0, 2]])
+        np.testing.assert_array_equal(self.mtr.create_confusion_matrix(y_test, y_pred, True), [[2, 0], [0, 2]])
 
     def test_get_classification_metrics(self):
         classifier, features_lemma = self.training()
         y_test, y_pred = self.mtr.prediction(classifier, 'classify', features_lemma)
-        X_test, y_test = self.split_tuples(features_lemma)
+        X_test, y_test = self.mtr.split_tuples(features_lemma)
         params = {
             "model": classifier,
             "X_train": np.array(X_test),
@@ -60,6 +63,33 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(metrics['MSE'], 0)
         self.assertEqual(metrics['Accuracy'], 1.0)
         np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
+        params = {
+            "y_test": np.array(y_test),
+            "y_pred": y_pred
+        }
+        metrics = self.mtr.get_classification_metrics(params)
+        self.assertEqual(metrics['MSE'], 0)
+        self.assertEqual(metrics['Accuracy'], 1.0)
+        np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
+
+        data = load_wine()
+        X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=5)
+        model = SGDClassifier(random_state=3)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        params = {
+            "model": model,
+            "X_train": np.array(X_train),
+            "y_train": np.array(y_train),
+            "X_test": np.array(X_test),
+            "y_test": np.array(y_test),
+            "y_pred": y_pred
+        }
+        metrics = self.mtr.get_classification_metrics(params)
+        self.assertEqual(metrics['MSE'], 0.7443055555555557)
+        self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
+        print(metrics['Precision'])
+        np.testing.assert_array_equal(metrics['Precision'][2], 0.4)
 
     def test_manage_model(self):
         filename = '/tmp/save.model'
