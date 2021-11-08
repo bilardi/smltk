@@ -7,3 +7,5 @@ mlxtend
 nltk
 seaborn
 sklearn
+ipython
+
