@@ -40,7 +40,14 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(y_test, [1, 1, 0, 0])
 
     def test_prediction(self):
-        y_test, y_pred = self.prediction()
+        classifier, features_lemma = self.training()
+        y_test, y_pred = self.mtr.prediction(classifier, 'classify', features_lemma)
+        self.assertEqual(y_test, y_pred)
+        y_test, y_pred = self.mtr.prediction(classifier, 'classify', [])
+        self.assertEqual(y_test, y_pred)
+        np.testing.assert_array_equal(y_pred, [])
+        X_test = pd.Series(features_lemma)
+        y_test, y_pred = self.mtr.prediction(classifier, 'classify', X_test)
         self.assertEqual(y_test, y_pred)
 
     def test_create_confusion_matrix(self):
@@ -88,7 +95,6 @@ class TestMetrics(unittest.TestCase, Metrics):
         metrics = self.mtr.get_classification_metrics(params)
         self.assertEqual(metrics['MSE'], 0.7443055555555557)
         self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
-        print(metrics['Precision'])
         np.testing.assert_array_equal(metrics['Precision'][2], 0.4)
 
     def test_manage_model(self):

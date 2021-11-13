@@ -9,6 +9,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from mlxtend.evaluate import bias_variance_decomp
 import seaborn as sns
 import numpy as np
+import pandas as pd
 import pickle
 
 class Metrics():
@@ -41,7 +42,10 @@ class Metrics():
                 tuple of list of targets and list of predictions
         """
         y_pred = []
-        if type(X_test[0]) is tuple:
+        if len(X_test) > 0 and (
+            (type(X_test) is pd.core.series.Series and type(X_test[X_test.first_valid_index()]) is tuple)
+            or (type(X_test[:1][0]) is tuple)
+        ):
             X_test, y_test = self.split_tuples(X_test)
         predictor = getattr(model, method)
         for sample in X_test:

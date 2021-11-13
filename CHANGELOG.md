@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2021-11-13
+
+### Fixed
+- packages for readthedocs deployment
+- prediction when the X_test is empty or it starts with a non-zero index
 ## [1.0.0] - 2021-11-06
 
 ### Added
@@ -50,7 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/bilardi/smltk/releases/tag/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bilardi/smltk/releases/tag/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/bilardi/smltk/releases/tag/v0.0.3...v0.1.0
 [0.0.3]: https://github.com/bilardi/smltk/releases/tag/v0.0.2...v0.0.3
