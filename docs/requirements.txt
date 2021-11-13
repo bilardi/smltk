@@ -7,5 +7,5 @@ mlxtend
 nltk
 seaborn
 sklearn
+wordcloud
 ipython
-
