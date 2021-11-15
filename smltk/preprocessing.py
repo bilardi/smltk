@@ -13,6 +13,7 @@ nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 from nltk.stem import WordNetLemmatizer
+from nltk.util import ngrams as ng
 from collections import defaultdict
 from collections import Counter
 from wordcloud import WordCloud
@@ -272,7 +273,32 @@ class Ntk():
                         del vocabs[target2][word]
         return vocabs
 
-    def get_features(self, doc, is_lemma = True, words_top = {}):
+    def get_ngrams(self, degree = 2, doc = "", tokens = [], is_tuple = True):
+        """
+            Gets ngrams
+
+            Arguments:
+                :degree (int): degree of ngrams, default is 2
+                :doc (str): text, option if you pass tokens
+                :tokens (list[str]): list of tokens, option if you pass doc
+                :is_tuple (bool): default is True
+            Returns:
+                list of tuples (n_grams) for that degree, or list of string (token)
+        """
+        ngrams = []
+        if doc and not tokens:
+            tokens = self.get_tokens_cleaned(doc)
+        if tokens:
+            ngrams = list(ng(tokens, degree))
+        if is_tuple == False:
+            n_grams = []
+            for n_gram in ngrams:
+                ngram = ' '.join(n_gram)
+                n_grams.append(ngram)
+            ngrams = n_grams
+        return ngrams
+
+    def get_features(self, doc, is_lemma = True, words_top = {}, degree = 0):
         """
             Gets features
 
@@ -280,11 +306,16 @@ class Ntk():
                 :doc (str): text
                 :is_lemma (bool): default is True
                 :words_top (dict): dictionary of the words top
+                :degree (int): degree of ngrams, default is 0
             Returns:
                 dictionary of features extracted
         """
         tokens = self.get_tokens_cleaned(doc, is_lemma)
         features = {'words_top': 0}
+        if degree > 0:
+            ngrams = self.get_ngrams(degree = degree, tokens = tokens, is_tuple = False)
+            for token in ngrams:
+                features[token] = 1
         for token in tokens:
             if token in words_top:
                 features['words_top'] += 1

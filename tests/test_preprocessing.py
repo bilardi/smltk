@@ -222,6 +222,15 @@ class TestNtk(unittest.TestCase, Ntk):
         self.assertEqual(vocabs_cleaned, {'one': Counter({'uno':1, 'uno':2}), 'two': Counter({'due':2, 'dos':3})})
         self.assertEqual(vocabs_cleaned, {'one': {'uno':1, 'uno':2}, 'two': {'due':2, 'dos':3}})
 
+    def test_get_ngrams(self):
+        tokens = self.ntk.get_tokens_cleaned(self.doc)
+        ngrams = self.ntk.get_ngrams()
+        self.assertEqual(ngrams, [])
+        ngrams = self.ntk.get_ngrams(degree = 1, tokens = tokens)
+        self.assertEqual(type(ngrams[0]), tuple)
+        ngrams = self.ntk.get_ngrams(degree = 1, tokens = tokens, is_tuple = False)
+        np.testing.assert_array_equal(ngrams, tokens)
+
     def create_words_map(self):
         tokens = self.ntk.get_tokens_cleaned(self.doc)
         return self.ntk.create_words_map(tokens)
