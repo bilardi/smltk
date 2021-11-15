@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2021-11-15
+
+### Added
+- parameter on all methods that use Ntk.get_features to manage ngrams
+
 ## [1.1.0] - 2021-11-15
 
 ### Added
@@ -61,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/bilardi/smltk/releases/tag/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/bilardi/smltk/releases/tag/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/bilardi/smltk/releases/tag/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bilardi/smltk/releases/tag/v0.1.0...v1.0.0

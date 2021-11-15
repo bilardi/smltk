@@ -322,7 +322,7 @@ class Ntk():
         features.update(self.sia.polarity_scores(doc))
         return features
 
-    def get_features_from_docs(self, docs, is_lemma = True, words_top = {}):
+    def get_features_from_docs(self, docs, is_lemma = True, words_top = {}, degree = 0):
         """
             Gets features
 
@@ -330,12 +330,13 @@ class Ntk():
                 :docs (list[str]): list of text
                 :is_lemma (bool): default is True
                 :words_top (dict): dictionary of the words top
+                :degree (int): degree of ngrams, default is 0
             Returns:
                 dictionary of features extracted
         """
-        return [self.get_features(doc, is_lemma, words_top) for doc in docs]
+        return [self.get_features(doc, is_lemma, words_top, degree) for doc in docs]
 
-    def create_features_from_docs(self, docs, target, is_lemma = True, words_top = {}):
+    def create_features_from_docs(self, docs, target, is_lemma = True, words_top = {}, degree = 0):
         """
             Creates features from docs
 
@@ -344,12 +345,13 @@ class Ntk():
                 :target (str): target name of the docs
                 :is_lemma (bool): default is True
                 :words_top (dict): dictionary of the words top
+                :degree (int): degree of ngrams, default is 0
             Returns:
                 list of tuples with features and relative target
         """
-        return [(self.get_features(doc, is_lemma, words_top), target) for doc in docs]
+        return [(self.get_features(doc, is_lemma, words_top, degree), target) for doc in docs]
 
-    def create_features_from_tuples(self, tuples, is_lemma = True, words_top = {}):
+    def create_features_from_tuples(self, tuples, is_lemma = True, words_top = {}, degree = 0):
         """
             Creates features from tuples
 
@@ -357,10 +359,11 @@ class Ntk():
                 :tuples (list[tuples]): list of tuples with sample and its target
                 :is_lemma (bool): default is True
                 :words_top (dict): dictionary of the words top
+                :degree (int): degree of ngrams, default is 0
             Returns:
                 list of tuples with features and relative target
         """
-        return [(self.get_features(doc, is_lemma, words_top), target) for (doc, target) in tuples]
+        return [(self.get_features(doc, is_lemma, words_top, degree), target) for (doc, target) in tuples]
 
     def create_words_map(self, words):
         """
