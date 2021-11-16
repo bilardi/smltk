@@ -358,7 +358,7 @@ class Ntk():
         tokens = self.get_tokens_cleaned(doc, is_lemma)
         features = {'words_top': 0}
         if degree > 0:
-            features.update(self.get_ngrams_features(degree = degree, tokens = tokens, is_tuple = False))
+            features.update(self.get_ngrams_features(degree = degree, tokens = tokens, is_lemma = is_lemma))
         for token in tokens:
             if token in words_top:
                 features['words_top'] += 1
