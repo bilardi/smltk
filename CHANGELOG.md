@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2021-11-16
+
+### Added
+- parameter is_lemma on Ntk.get_ngrams
+- some methods on Ntk to manage creation of ngrams feature from docs and tuples
+
+### Changed
+- in Ntk.get_features the ngrams creation directly by Ntk.get_ngrams_features
+
 ## [1.1.1] - 2021-11-15
 
 ### Added
@@ -66,7 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/bilardi/smltk/releases/tag/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/bilardi/smltk/releases/tag/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/bilardi/smltk/releases/tag/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/bilardi/smltk/releases/tag/v1.0.0...v1.0.1

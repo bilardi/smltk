@@ -273,21 +273,22 @@ class Ntk():
                         del vocabs[target2][word]
         return vocabs
 
-    def get_ngrams(self, degree = 2, doc = "", tokens = [], is_tuple = True):
+    def get_ngrams(self, degree = 2, doc = "", tokens = [], is_tuple = True, is_lemma = False):
         """
-            Gets ngrams
+            Gets ngrams from doc or tokens
 
             Arguments:
                 :degree (int): degree of ngrams, default is 2
                 :doc (str): text, option if you pass tokens
                 :tokens (list[str]): list of tokens, option if you pass doc
                 :is_tuple (bool): default is True
+                :is_lemma (bool): default is False
             Returns:
                 list of tuples (n_grams) for that degree, or list of string (token)
         """
         ngrams = []
         if doc and not tokens:
-            tokens = self.get_tokens_cleaned(doc)
+            tokens = self.get_tokens_cleaned(doc, is_lemma)
         if tokens:
             ngrams = list(ng(tokens, degree))
         if is_tuple == False:
@@ -297,6 +298,50 @@ class Ntk():
                 n_grams.append(ngram)
             ngrams = n_grams
         return ngrams
+
+    def get_ngrams_features(self, degree = 2, doc = "", tokens = [], is_lemma = False):
+        """
+            Gets ngrams features from doc or tokens
+            Arguments:
+                :degree (int): degree of ngrams, default is 2
+                :doc (str): text, option if you pass tokens
+                :tokens (list[str]): list of tokens, option if you pass doc
+                :is_lemma (bool): default is False
+            Returns:
+                dictionary of ngrams extracted
+        """
+        features = {}
+        ngrams = self.get_ngrams(degree = degree, doc = doc, tokens = tokens, is_tuple = False, is_lemma = is_lemma)
+        for token in ngrams:
+            features[token] = 1
+        return features
+
+    def create_ngrams_features_from_docs(self, docs, target, is_lemma = True, degree = 2):
+        """
+            Creates ngrams features from docs
+
+            Arguments:
+                :docs (list[str]): list of text
+                :target (str): target name of the docs
+                :is_lemma (bool): default is True
+                :degree (int): degree of ngrams, default is 2
+            Returns:
+                list of tuples with features and relative target
+        """
+        return [(self.get_ngrams_features(degree = degree, doc = doc, is_lemma = is_lemma), target) for doc in docs]
+
+    def create_ngrams_features_from_tuples(self, tuples, is_lemma = True, degree = 2):
+        """
+            Creates ngrams features from tuples
+
+            Arguments:
+                :tuples (list[tuples]): list of tuples with sample and its target
+                :is_lemma (bool): default is True
+                :degree (int): degree of ngrams, default is 2
+            Returns:
+                list of tuples with features and relative target
+        """
+        return [(self.get_ngrams_features(degree = degree, doc = doc, is_lemma = is_lemma), target) for (doc, target) in tuples]
 
     def get_features(self, doc, is_lemma = True, words_top = {}, degree = 0):
         """
@@ -313,9 +358,7 @@ class Ntk():
         tokens = self.get_tokens_cleaned(doc, is_lemma)
         features = {'words_top': 0}
         if degree > 0:
-            ngrams = self.get_ngrams(degree = degree, tokens = tokens, is_tuple = False)
-            for token in ngrams:
-                features[token] = 1
+            features.update(self.get_ngrams_features(degree = degree, tokens = tokens, is_tuple = False))
         for token in tokens:
             if token in words_top:
                 features['words_top'] += 1

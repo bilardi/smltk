@@ -228,8 +228,34 @@ class TestNtk(unittest.TestCase, Ntk):
         self.assertEqual(ngrams, [])
         ngrams = self.ntk.get_ngrams(degree = 1, tokens = tokens)
         self.assertEqual(type(ngrams[0]), tuple)
-        ngrams = self.ntk.get_ngrams(degree = 1, tokens = tokens, is_tuple = False)
+        ngrams = self.ntk.get_ngrams(degree = 1, doc = self.doc)
+        self.assertEqual(type(ngrams[0]), tuple)
+        ngrams = self.ntk.get_ngrams(degree = 1, doc = self.doc, is_tuple = False)
         np.testing.assert_array_equal(ngrams, tokens)
+
+    def test_get_ngrams_features(self):
+        ntk = Ntk({'stop_words': []})
+        tokens = ntk.get_tokens_cleaned(self.doc, is_lemma = False)
+        features = ntk.get_ngrams_features()
+        self.assertEqual(features, {})
+        tokens_features = ntk.get_ngrams_features(degree = 1, tokens = tokens)
+        self.assertEqual(tokens_features, {'good': 1, 'case': 1, 'excellent': 1, 'value': 1, 'i': 1, 'am': 1, 'agree': 1, 'there': 1, 'is': 1, 'a': 1, 'mistake': 1, 'item': 1, 'does': 1, 'not': 1, 'match': 1, 'picture': 1})
+        doc_features = ntk.get_ngrams_features(degree = 1, doc = self.doc)
+        self.assertEqual(doc_features, tokens_features)
+        features = ntk.get_ngrams_features(degree = 1, doc = self.doc, is_lemma = True)
+        self.assertEqual(features, {'good': 1, 'case': 1, 'excellent': 1, 'value': 1, 'i': 1, 'be': 1, 'agree': 1, 'there': 1, 'a': 1, 'mistake': 1, 'item': 1, 'do': 1, 'not': 1, 'match': 1, 'picture': 1})
+
+    def test_create_ngrams_features_from_docs(self):
+        features = self.ntk.create_ngrams_features_from_docs(self.docs, True)
+        self.assertEqual(type(features[0]), tuple)
+        self.assertEqual(features[0][1], True)
+        self.assertEqual(features[1][0], {})
+
+    def test_create_ngrams_features_from_tuples(self):
+        features = self.ntk.create_ngrams_features_from_tuples(self.tuples, True)
+        self.assertEqual(type(features[0]), tuple)
+        self.assertEqual(features[0][1], True)
+        self.assertEqual(features[1][0], {})
 
     def create_words_map(self):
         tokens = self.ntk.get_tokens_cleaned(self.doc)
