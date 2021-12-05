@@ -66,7 +66,7 @@ class Metrics():
         matrix = confusion_matrix(y_test, y_pred)
         tick_labels = np.unique(np.array([y_test, y_pred]))
         if is_test == False:
-            sns.heatmap(matrix.T, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
+            sns.heatmap(matrix, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
         return matrix
 
     def get_classification_metrics(self, params = {}):
