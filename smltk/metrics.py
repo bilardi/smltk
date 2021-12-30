@@ -5,6 +5,7 @@
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import matthews_corrcoef
 #%pip install mlxtend --upgrade
 from mlxtend.evaluate import bias_variance_decomp
 import seaborn as sns
@@ -84,9 +85,9 @@ class Metrics():
                 :num_rounds (int): parameter of bias_variance_decomp, default 200
                 :random_seed (int): parameter of bias_variance_decomp, default 3
             Returns:
-                dictionary with MSE, Bias, Variance, Accuracy, Precision, Recall, Fscore
+                dictionary with Loss, Bias, Variance, MCC, Accuracy, Precision, Recall, Fscore
         """
-        mse, bias, variance = (0, 0, 0)
+        loss, bias, variance = (0, 0, 0)
         if 'model' in params:
             fit_exists = hasattr(params['model'], 'fit') and callable(getattr(params['model'], 'fit'))
             predict_exists = hasattr(params['model'], 'predict') and callable(getattr(params['model'], 'predict'))
@@ -97,10 +98,11 @@ class Metrics():
                     params['num_rounds'] = 200
                 if 'random_seed' not in params:
                     params['random_seed'] = 3
-                mse, bias, variance = bias_variance_decomp(params['model'], params['X_train'], params['y_train'], params['X_test'], params['y_test'], loss=params['loss'], num_rounds=params['num_rounds'], random_seed=params['random_seed'])
+                loss, bias, variance = bias_variance_decomp(params['model'], params['X_train'], params['y_train'], params['X_test'], params['y_test'], loss=params['loss'], num_rounds=params['num_rounds'], random_seed=params['random_seed'])
         accuracy = accuracy_score(params['y_test'], params['y_pred'])
         report = precision_recall_fscore_support(params['y_test'], params['y_pred'])
-        return {'MSE': mse, 'Bias': bias, 'Variance': variance, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2]}
+        mcc = matthews_corrcoef(params['y_test'], params['y_pred'])
+        return {'Loss': loss, 'Bias': bias, 'Variance': variance, 'MCC': mcc, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2]}
 
     def print_metrics(self, metrics):
         """

@@ -67,16 +67,18 @@ class TestMetrics(unittest.TestCase, Metrics):
             "y_pred": y_pred
         }
         metrics = self.mtr.get_classification_metrics(params)
-        self.assertEqual(metrics['MSE'], 0)
+        self.assertEqual(metrics['Loss'], 0)
         self.assertEqual(metrics['Accuracy'], 1.0)
+        self.assertEqual(metrics['MCC'], 1.0)
         np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
         params = {
             "y_test": np.array(y_test),
             "y_pred": y_pred
         }
         metrics = self.mtr.get_classification_metrics(params)
-        self.assertEqual(metrics['MSE'], 0)
+        self.assertEqual(metrics['Loss'], 0)
         self.assertEqual(metrics['Accuracy'], 1.0)
+        self.assertEqual(metrics['MCC'], 1.0)
         np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
 
         data = load_wine()
@@ -93,8 +95,9 @@ class TestMetrics(unittest.TestCase, Metrics):
             "y_pred": y_pred
         }
         metrics = self.mtr.get_classification_metrics(params)
-        self.assertEqual(metrics['MSE'], 0.7443055555555557)
+        self.assertEqual(metrics['Loss'], 0.7443055555555557)
         self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
+        self.assertEqual(metrics['MCC'], 0.4802259242337604)
         np.testing.assert_array_equal(metrics['Precision'][2], 0.4)
 
     def test_manage_model(self):
