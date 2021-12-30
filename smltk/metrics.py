@@ -5,6 +5,7 @@
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import roc_auc_score
 from sklearn.metrics import matthews_corrcoef
 #%pip install mlxtend --upgrade
 from mlxtend.evaluate import bias_variance_decomp
@@ -70,6 +71,36 @@ class Metrics():
             sns.heatmap(matrix, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
         return matrix
 
+    def is_binary_classification(self, y_test, y_pred):
+        """
+            Gets if the classification is binary or not
+
+            Arguments:
+                :y_test (list[]): list of targets
+                :y_pred (list[]): list of predictions
+            Returns:
+                boolean
+        """
+        classes = np.unique(np.array([y_test, y_pred]))
+        if len(classes) == 2:
+            return True
+        return False
+
+    def clean_binary_classification(self, y_test, y_pred):
+        """
+            Transforms the target and prediction in integer 0 and 1
+
+            Arguments:
+                :y_test (list[]): list of targets
+                :y_pred (list[]): list of predictions
+            Returns:
+                y_test and y_pred with only 0 and 1 values
+        """
+        classes = np.unique(np.array([y_test, y_pred]))
+        y_test = [0 if x == classes[0] else 1 for x in y_test]
+        y_pred = [0 if x == classes[0] else 1 for x in y_pred]
+        return y_test, y_pred
+
     def get_classification_metrics(self, params = {}):
         """
             Gets classification metrics
@@ -85,9 +116,9 @@ class Metrics():
                 :num_rounds (int): parameter of bias_variance_decomp, default 200
                 :random_seed (int): parameter of bias_variance_decomp, default 3
             Returns:
-                dictionary with Loss, Bias, Variance, MCC, Accuracy, Precision, Recall, Fscore
+                dictionary with Loss, Bias, Variance, MCC, ROC_AUC, Accuracy, Precision, Recall, Fscore
         """
-        loss, bias, variance = (0, 0, 0)
+        loss, bias, variance, roc_auc = (0, 0, 0, 0)
         if 'model' in params:
             fit_exists = hasattr(params['model'], 'fit') and callable(getattr(params['model'], 'fit'))
             predict_exists = hasattr(params['model'], 'predict') and callable(getattr(params['model'], 'predict'))
@@ -102,7 +133,10 @@ class Metrics():
         accuracy = accuracy_score(params['y_test'], params['y_pred'])
         report = precision_recall_fscore_support(params['y_test'], params['y_pred'])
         mcc = matthews_corrcoef(params['y_test'], params['y_pred'])
-        return {'Loss': loss, 'Bias': bias, 'Variance': variance, 'MCC': mcc, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2]}
+        if self.is_binary_classification(params['y_test'], params['y_pred']):
+            y_test, y_pred = self.clean_binary_classification(params['y_test'], params['y_pred'])
+            roc_auc = roc_auc_score(y_test, y_pred)
+        return {'Loss': loss, 'Bias': bias, 'Variance': variance, 'MCC': mcc, 'ROC_AUC': roc_auc, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2], 'Support': report[3]}
 
     def print_metrics(self, metrics):
         """

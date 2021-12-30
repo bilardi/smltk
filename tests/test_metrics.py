@@ -54,6 +54,29 @@ class TestMetrics(unittest.TestCase, Metrics):
         y_test, y_pred = self.prediction()
         np.testing.assert_array_equal(self.mtr.create_confusion_matrix(y_test, y_pred, True), [[2, 0], [0, 2]])
 
+    def test_is_binary_classification(self):
+        y_test = [1, 0, 1]
+        y_pred = [0, 1, 0]
+        self.assertTrue(self.mtr.is_binary_classification(y_test, y_pred))
+        y_pred = [0, 1, 2]
+        self.assertFalse(self.mtr.is_binary_classification(y_test, y_pred))
+
+    def test_clean_binary_classification(self):
+        y_test = [1, 0, 1]
+        y_pred = [0, 1, 0]
+        y_test_cleaned, y_pred_cleaned = self.mtr.clean_binary_classification(y_test, y_pred)
+        self.assertEqual(y_test_cleaned[0], 1)
+        self.assertEqual(y_test_cleaned[1], 0)
+        self.assertEqual(y_pred_cleaned[0], 0)
+        self.assertEqual(y_pred_cleaned[1], 1)
+        y_test = ['pos', 'neg', 'pos']
+        y_pred = ['neg', 'pos', 'neg']
+        y_test_cleaned, y_pred_cleaned = self.mtr.clean_binary_classification(y_test, y_pred)
+        self.assertEqual(y_test_cleaned[0], 1)
+        self.assertEqual(y_test_cleaned[1], 0)
+        self.assertEqual(y_pred_cleaned[0], 0)
+        self.assertEqual(y_pred_cleaned[1], 1)
+
     def test_get_classification_metrics(self):
         classifier, features_lemma = self.training()
         y_test, y_pred = self.mtr.prediction(classifier, 'classify', features_lemma)
@@ -70,7 +93,9 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(metrics['Loss'], 0)
         self.assertEqual(metrics['Accuracy'], 1.0)
         self.assertEqual(metrics['MCC'], 1.0)
+        self.assertEqual(metrics['ROC_AUC'], 1.0)
         np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
+        np.testing.assert_array_equal(metrics['Support'], [2, 2])
         params = {
             "y_test": np.array(y_test),
             "y_pred": y_pred
@@ -79,7 +104,9 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(metrics['Loss'], 0)
         self.assertEqual(metrics['Accuracy'], 1.0)
         self.assertEqual(metrics['MCC'], 1.0)
+        self.assertEqual(metrics['ROC_AUC'], 1.0)
         np.testing.assert_array_equal(metrics['Precision'], [1., 1.])
+        np.testing.assert_array_equal(metrics['Support'], [2, 2])
 
         data = load_wine()
         X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=5)
@@ -99,6 +126,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
         self.assertEqual(metrics['MCC'], 0.4802259242337604)
         np.testing.assert_array_equal(metrics['Precision'][2], 0.4)
+        np.testing.assert_array_equal(metrics['Support'][2], 8)
 
     def test_manage_model(self):
         filename = '/tmp/save.model'
