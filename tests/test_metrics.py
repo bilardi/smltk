@@ -128,6 +128,21 @@ class TestMetrics(unittest.TestCase, Metrics):
         np.testing.assert_array_equal(metrics['Precision'][2], 0.4)
         np.testing.assert_array_equal(metrics['Support'][2], 8)
 
+    def test_scoring(self):
+        data = load_wine()
+        X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=5)
+        model = SGDClassifier(random_state=3)
+        model.fit(X_train, y_train)
+        metrics = self.mtr.scoring(model, X_test, y_test)
+        self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
+
+    def test_modeling(self):
+        data = load_wine()
+        X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=5)
+        model = SGDClassifier(random_state=3)
+        metrics = self.mtr.modeling(model, X_train, y_train, X_test, y_test)
+        self.assertEqual(metrics['Accuracy'], 0.6666666666666666)
+
     def test_manage_model(self):
         filename = '/tmp/save.model'
         classifier, features_lemma = self.training()

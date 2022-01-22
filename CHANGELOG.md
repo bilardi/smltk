@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2022-01-22
+
+### Added
+- scoring and modeling methods to Metrics
+
 ## [2.2.0] - 2021-12-30
 
 ### Added
@@ -99,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the documentation by sphinx
 
 [Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.0...HEAD
+[2.2.1]: https://github.com/bilardi/smltk/releases/tag/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/bilardi/smltk/releases/tag/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/bilardi/smltk/releases/tag/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/bilardi/smltk/releases/tag/v1.2.1...v2.0.0

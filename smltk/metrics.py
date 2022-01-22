@@ -101,6 +101,28 @@ class Metrics():
         y_pred = [0 if x == classes[0] else 1 for x in y_pred]
         return y_test, y_pred
 
+    def fit_exists(self, model):
+        """
+            Get a boolean True if fit method exists
+
+            Arguments:
+                :model (obj): object of your model
+            Returns:
+                boolean
+        """
+        return hasattr(model, 'fit') and callable(getattr(model, 'fit'))
+
+    def predict_exists(self, model):
+        """
+            Get a boolean True if predict method exists
+
+            Arguments:
+                :model (obj): object of your model
+            Returns:
+                boolean
+        """
+        return hasattr(model, 'predict') and callable(getattr(model, 'predict'))
+
     def get_classification_metrics(self, params = {}):
         """
             Gets classification metrics
@@ -120,9 +142,7 @@ class Metrics():
         """
         loss, bias, variance, roc_auc = (0, 0, 0, 0)
         if 'model' in params:
-            fit_exists = hasattr(params['model'], 'fit') and callable(getattr(params['model'], 'fit'))
-            predict_exists = hasattr(params['model'], 'predict') and callable(getattr(params['model'], 'predict'))
-            if fit_exists == True or predict_exists == True:
+            if self.fit_exists(params['model']) or self.predict_exists(params['model']):
                 if 'loss' not in params:
                     params['loss'] = 'mse'
                 if 'num_rounds' not in params:
@@ -137,6 +157,45 @@ class Metrics():
             y_test, y_pred = self.clean_binary_classification(params['y_test'], params['y_pred'])
             roc_auc = roc_auc_score(y_test, y_pred)
         return {'Loss': loss, 'Bias': bias, 'Variance': variance, 'MCC': mcc, 'ROC_AUC': roc_auc, 'Accuracy': accuracy, 'Precision': report[0], 'Recall': report[1], 'Fscore': report[2], 'Support': report[3]}
+
+    def scoring(self, model, X_test, y_test):
+        """
+            Gets classification metrics after prediction
+
+            Arguments:
+                :model (obj): object of your model
+                :X_test (list[] | list[tuple]): list of samples or list of tuples with sample and its target
+                :y_test (list[]): list of targets
+            Returns:
+                dictionary with Loss, Bias, Variance, MCC, ROC_AUC, Accuracy, Precision, Recall, Fscore
+        """
+        metrics = {}
+        if self.predict_exists(model):
+            y_pred = model.predict(X_test)
+            metrics = self.get_classification_metrics({
+                "y_test": y_test,
+                "y_pred": y_pred
+            })
+        return metrics
+
+    def modeling(self, model, X_train, y_train, X_test, y_test):
+        """
+            Gets classification metrics after training and prediction
+
+            Arguments:
+                :model (obj): object of your model
+                :X_train (list[]|list[tuple]): list of samples or list of tuples with sample and its target
+                :y_train (list[]): list of targets
+                :X_test (list[] | list[tuple]): list of samples or list of tuples with sample and its target
+                :y_test (list[]): list of targets
+            Returns:
+                dictionary with Loss, Bias, Variance, MCC, ROC_AUC, Accuracy, Precision, Recall, Fscore
+        """
+        metrics = {}
+        if self.fit_exists(model):
+            model.fit(X_train, y_train)
+            metrics = self.scoring(model, X_test, y_test)
+        return metrics
 
     def print_metrics(self, metrics):
         """
