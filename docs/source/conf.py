@@ -18,12 +18,12 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Simple Machine Learning Tool Kit'
-copyright = '2021, Alessandra Bilardi'
+copyright = '2023, Alessandra Bilardi'
 author = 'Alessandra Bilardi'
 
 # The full version, including alpha/beta/rc tags
-version = '2.2.1'
-release = '2.2.1'
+version = '2.2.2'
+release = '2.2.2'
 
 # specify the master doc, otherwise the build at read the docs fails
 master_doc = 'index'

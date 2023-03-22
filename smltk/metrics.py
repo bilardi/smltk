@@ -66,8 +66,10 @@ class Metrics():
                 confusion matrix
         """
         matrix = confusion_matrix(y_test, y_pred)
-        tick_labels = np.unique(np.array([y_test, y_pred]))
         if is_test == False:
+            print(y_test)
+#            tick_labels = np.unique(np.array([y_test, y_pred]))
+            tick_labels = np.unique(np.array([y_test, y_pred]))
             sns.heatmap(matrix, square=True, annot=True, fmt='d', cbar=False, xticklabels = tick_labels, yticklabels = tick_labels)
         return matrix
 
