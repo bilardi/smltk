@@ -303,6 +303,7 @@ class Ntk():
     def get_ngrams_features(self, degree = 2, doc = "", tokens = [], is_lemma = False):
         """
             Gets ngrams features from doc or tokens
+
             Arguments:
                 :degree (int): degree of ngrams, default is 2
                 :doc (str): text, option if you pass tokens

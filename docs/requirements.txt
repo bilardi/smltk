@@ -9,3 +9,7 @@ seaborn
 sklearn
 wordcloud
 ipython
+Pillow
+requests
+torchvision
+torch
