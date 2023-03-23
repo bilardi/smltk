@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.3] - 2023-03-23
+
+### Added
+- in the class DataVisualization, the methods bboxes_cxcywh_to_xyxy, rescale_bboxes, get_inference_objects, get_inference_objects_df, plot_inference_objects
+
 ## [2.2.2] - 2023-03-22
 
 ### Added
@@ -108,7 +113,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.3...HEAD
+[2.2.3]: https://github.com/bilardi/smltk/releases/tag/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/bilardi/smltk/releases/tag/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/bilardi/smltk/releases/tag/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/bilardi/smltk/releases/tag/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/bilardi/smltk/releases/tag/v2.0.0...v2.1.0
