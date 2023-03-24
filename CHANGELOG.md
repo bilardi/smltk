@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.4] - 2023-03-24
+
+### Fixed
+- documentation
+- requirements
+
 ## [2.2.3] - 2023-03-23
 
 ### Added
@@ -113,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.3...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.4...HEAD
+[2.2.4]: https://github.com/bilardi/smltk/releases/tag/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/bilardi/smltk/releases/tag/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/bilardi/smltk/releases/tag/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/bilardi/smltk/releases/tag/v2.2.0...v2.2.1
