@@ -6,7 +6,7 @@ smltk
 mlxtend
 nltk
 seaborn
-sklearn
+scikit-learn
 wordcloud
 ipython
 Pillow

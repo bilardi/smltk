@@ -1,5 +1,9 @@
 mlxtend
 nltk
 seaborn
-sklearn
+scikit-learn
 wordcloud
+Pillow
+requests
+torchvision
+torch
