@@ -26,6 +26,8 @@ Metrics management
 
     smltk.metrics.Metrics.create_confusion_matrix
     smltk.metrics.Metrics.get_classification_metrics
+    smltk.metrics.Metrics.scoring
+    smltk.metrics.Metrics.modeling
     smltk.metrics.Metrics.print_metrics
 
 Model management
