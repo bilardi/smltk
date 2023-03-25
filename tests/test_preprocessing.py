@@ -296,33 +296,33 @@ class TestNtk(unittest.TestCase, Ntk):
         features_mix = data[['text', 'words_top', 'neg', 'neu', 'pos', 'compound']].to_dict(orient="records")
 
         X_train_dict = self.ntk.vectorize_docs(features_mix)
-        self.assertEqual(type(X_train_dict[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_train_dict[0]), scipy.sparse.csr_matrix)
         vectorizer_dict = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_dict.vocabulary_), 9)
         X_test_dict = self.ntk.vectorize_docs(features_mix, is_test = True)
-        self.assertEqual(type(X_test_dict[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_test_dict[0]), scipy.sparse.csr_matrix)
 
         X_train_count = self.ntk.vectorize_docs(self.docs)
-        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr_matrix)
         vectorizer_count = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_count.vocabulary_), 14)
         X_test_count = self.ntk.vectorize_docs(self.docs, is_test = True)
-        self.assertEqual(type(X_test_count[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_test_count[0]), scipy.sparse.csr_matrix)
 
         X_train_tfidf = self.ntk.vectorize_docs(self.docs, False)
-        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr_matrix)
         vectorizer_tfidf = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_tfidf.vocabulary_), 14)
         X_test_tfidf = self.ntk.vectorize_docs(self.docs, is_test = True)
-        self.assertEqual(type(X_test_tfidf[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_test_tfidf[0]), scipy.sparse.csr_matrix)
 
         X_train_count = self.ntk.vectorize_docs(self.docs, is_lemma = True)
-        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_train_count[0]), scipy.sparse.csr_matrix)
         vectorizer_lemma = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_lemma.vocabulary_), 9)
 
         X_train_tfidf = self.ntk.vectorize_docs(self.docs, is_count = False, is_lemma = True)
-        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr.csr_matrix)
+        self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr_matrix)
         vectorizer_lemma = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_lemma.vocabulary_), 9)
 

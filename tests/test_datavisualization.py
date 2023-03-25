@@ -7,9 +7,9 @@ from sklearn.tree import DecisionTreeClassifier
 
 # import tensorflow_datasets as tfds
 
-from PIL import Image
 import requests
-import torchvision.transforms as T
+from PIL import Image
+import torchvision.transforms as transforms
 import torch
 
 class TestDataVisualization(unittest.TestCase, DataVisualization):
@@ -52,13 +52,9 @@ class TestDataVisualization(unittest.TestCase, DataVisualization):
     #     self.assertEqual(df.count().sum(), 0)
 
     def test_get_inference_objects_torch(self):
-        url = 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg'
+        url = 'https://www.projectinvictus.it/wp-content/uploads/2022/08/junk-food-scaled.jpg'
         im = Image.open(requests.get(url, stream=True).raw)
-        transform = T.Compose([
-            T.Resize(800),
-            T.ToTensor(),
-            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
+        transform = transforms.Compose([ transforms.Resize(800), transforms.ToTensor() ])
         img = transform(im).unsqueeze(0)
         model = torch.hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True)
         model.eval();
@@ -66,8 +62,8 @@ class TestDataVisualization(unittest.TestCase, DataVisualization):
         probability, boxes = self.dv.get_inference_objects(im, prediction, 0.7)
         df = self.dv.get_inference_objects_df(probability, boxes)
         self.assertListEqual(df.columns.to_list(), ['class', 'probability', 'xmin', 'ymin', 'xmax', 'ymax'])
-        self.assertListEqual(df.groupby('class').count().index.tolist(), ['bottle', 'broccoli', 'carrot', 'orange'])
-        self.assertListEqual(df.groupby('class').count()['probability'].tolist(), [1, 3, 2, 2])
+        self.assertListEqual(df.groupby('class').count().index.tolist(), ['bowl', 'cup', 'dining table', 'donut'])
+        self.assertListEqual(df.groupby('class').count()['probability'].tolist(), [5, 3, 1, 4])
 
 if __name__ == '__main__':
     unittest.main()
