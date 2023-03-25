@@ -6,3 +6,4 @@ API
 
     api/metrics
     api/preprocessing
+    api/datavisualization
