@@ -1,5 +1,6 @@
 import unittest
 from smltk.preprocessing import Ntk
+from smltk.preprocessing import Indicator
 import nltk
 from nltk.stem import WordNetLemmatizer
 from collections import Counter
@@ -325,6 +326,28 @@ class TestNtk(unittest.TestCase, Ntk):
         self.assertEqual(type(X_train_tfidf[0]), scipy.sparse.csr_matrix)
         vectorizer_lemma = self.ntk.vectorizer
         self.assertEqual(len(vectorizer_lemma.vocabulary_), 9)
+
+class TestIndicator(unittest.TestCase, Indicator):
+    indicator = None
+    timeseries = None
+    timestamp = None
+    def __init__(self, *args, **kwargs):
+        self.indicator = Indicator()
+        self.timeseries = self.get_wave()
+        self.timestamp = range(0, 25)
+        unittest.TestCase.__init__(self, *args, **kwargs)
+
+    def get_wave(self):
+        cycles = 4
+        resolution = 25
+        length = np.pi * 2 * cycles
+        return np.sin(np.arange(0, length, length / resolution)) + 1
+
+    def test_get_dc_events(self):
+        events = self.indicator.get_dc_events(self.timeseries)
+        self.assertEqual(events, ['upward overshoot', 'upward overshoot', 'upward overshoot', 'downward dc', 'downward overshoot', 'downward overshoot', 'upward dc', 'upward overshoot', 'upward overshoot', 'downward dc', 'downward overshoot', 'downward overshoot', 'upward dc', 'upward overshoot', 'upward overshoot', 'downward dc', 'downward overshoot', 'downward overshoot', 'upward dc', 'upward overshoot', 'upward overshoot', 'downward dc', 'downward overshoot', 'downward overshoot', 'upward dc'])
+        indicator = Indicator({"timeseries": self.timeseries})
+        self.assertEqual(events, indicator.get_dc_events())
 
 if __name__ == '__main__':
     unittest.main()

@@ -134,3 +134,57 @@ class DataVisualization():
             ax.text(xmin, ymin, text, fontsize=15, bbox=dict(facecolor='yellow', alpha=0.5))
         plt.axis('off')
         plt.show()
+
+    def plot_dc(self, params: dict={}, return_ax=False):
+        """
+            Plot image with directional changes
+
+            Arguments: params (dict) with the keys below
+                :dc_colors (dict): key-value about each event-color of directional change
+                :events (list[str]): list of events names for time point
+                :timeseries (list[float]): list of values
+                :timestamp (list[int|datetime]): time point list
+                :figsize (tuple): 
+                :title (str): title of plot
+                :x_axis_label (str): label of x axis
+                :y_axis_label (str): label of y axis
+
+            Returns:
+                plot or its object
+        """
+        if "dc_colors" not in params:
+            params["dc_colors"] = {
+                "upward dc":"green",
+                "upward overshoot": "lime",
+                "downward dc": "red",
+                "downward overshoot": "lightcoral"
+            }
+        if "figsize" not in params:
+            params["figsize"] = (10, 5)
+        if "events" in params:
+            colors = params["events"].copy()
+            for event in params["dc_colors"]:
+                colors = list(map(lambda x: x.replace(event, params["dc_colors"][event]), colors))
+
+        handles = []
+        for event in params["dc_colors"]:
+            handles.append(plt.Line2D([0], [0], color=params["dc_colors"][event], label=event))
+
+        if "timeseries" in params and "timestamp" in params:
+            _, ax1 = plt.subplots(figsize=params["figsize"])
+            ax1.ticklabel_format(style = 'plain', axis = 'y', useOffset = False)
+            for i, color in enumerate(colors):
+                ax1.plot(params["timestamp"][i : i + 2], params["timeseries"][i : i + 2], color = color)
+            ax1.set_xlim(0, len(params["timeseries"]) - 1)
+            ax1.set_ylim(params["timeseries"].min() * 0.9999, params["timeseries"].max() * 1.0001)
+            if "title" in params:
+                ax1.set_title(params["title"])
+            if "x_axis_label" in params:
+                ax1.set_xlabel(params["x_axis_label"])
+            if "y_axis_label" in params:
+                ax1.set_ylabel(params["y_axis_label"])
+            ax1.legend(handles=handles, loc='upper right', fontsize='small')
+            if return_ax is True:
+                return ax1
+            else:
+                plt.show()

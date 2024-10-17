@@ -4,12 +4,13 @@
 """
 import re
 import string
+import numpy as np
 import nltk
-nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 nltk.download('stopwords')
-nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng')
 nltk.download('vader_lexicon')
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
@@ -464,3 +465,91 @@ class Ntk():
         else:
             self.vectorizer = vectorizer
             return self.vectorizer.fit_transform(docs)
+
+class Indicator():
+    """
+    The class Indicator contains the tool kit to calculate the principal indicators.
+
+    Arguments: params (dict) with the keys below
+        :timeseries (list[int|float]): list of values, default None
+
+    Here's an example:
+
+        >>> from smltk.preprocessing import Indicator
+        >>> timeseries = numpy.array()
+        >>> indicator = Indicator()
+        >>> dc_events = indicator.get_dc_events(timeseries)
+        >>> print(dc_events)
+        array['upward dc', 'downward dc', ..]
+    """
+    timeseries = None
+
+    def __init__(self, params = []):
+        if "timeseries" in params:
+            self.timeseries = params["timeseries"]
+
+    def get_dc_events(self, timeseries: np.array=None, threshold: float=0.0001):
+        """
+            Compute all relevant Directional Change parameters
+
+            Arguments:
+                :timeseries (list[float]): list of values 
+                :threshold (float): default is 0.0001
+            Returns:
+                list of scipy.sparse.csr.csr_matrix, one for each doc
+		"""
+        if timeseries is None and self.timeseries is None:
+            raise ValueError("Timeseries data has to be a no empty numpy.array()")
+        elif self.timeseries is not None:
+            timeseries = self.timeseries
+
+        time_value_list = []
+        time_point_list = []
+        colors = []
+        events = []
+
+        ext_point_n = timeseries[0]
+        curr_event_max = timeseries[0]
+        curr_event_min = timeseries[0]
+        time_point_max = 0
+        time_point_min = 0
+        trend_status = 'up'
+        time_point = 0
+        for i, ts_value in enumerate(timeseries):
+            time_value = (ts_value - ext_point_n) / (ext_point_n * threshold)
+            time_value_list.append(time_value)
+            time_point_list.append(time_point)
+            time_point += 1
+            if trend_status == 'up':
+                colors.append('lime')
+                events.append('upward overshoot')
+                if ts_value < ((1 - threshold) * curr_event_max):
+                    trend_status = 'down'
+                    curr_event_min = ts_value
+                    ext_point_n = curr_event_max
+                    time_point = i - time_point_max
+                    num_points_change = i - time_point_max
+                    for j in range(1, num_points_change + 1):
+                        colors[-j] = 'red'
+                        events[-j] = 'downward dc'
+                else:
+                    if ts_value > curr_event_max:
+                        curr_event_max = ts_value
+                        time_point_max = i
+            else:
+                colors.append('lightcoral')
+                events.append('downward overshoot')
+                if ts_value > ((1 + threshold) * curr_event_min):
+                    trend_status = 'up'
+                    curr_event_max = ts_value
+                    ext_point_n = curr_event_min			
+                    time_point = i - time_point_min
+                    num_points_change = i - time_point_min
+                    for j in range(1, num_points_change + 1):
+                        colors[-j] = 'green'
+                        events[-j] = 'upward dc'
+                else:
+                    if ts_value < curr_event_min:
+                        curr_event_min = ts_value
+                        time_point_min = i
+        return events
