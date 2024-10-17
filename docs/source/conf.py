@@ -17,28 +17,33 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Simple Machine Learning Tool Kit'
-copyright = '2023, Alessandra Bilardi'
-author = 'Alessandra Bilardi'
+project = "Simple Machine Learning Tool Kit"
+copyright = "2024, Alessandra Bilardi"
+author = "Alessandra Bilardi"
 
 # The full version, including alpha/beta/rc tags
-version = '2.2.7'
-release = '2.2.7'
+version = "2.2.8"
+release = "2.2.8"
 
 # specify the master doc, otherwise the build at read the docs fails
-master_doc = 'index'
+master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['nbsphinx','sphinx.ext.autosummary','sphinx.ext.autodoc','sphinx.ext.intersphinx']
-#extensions = ['rst2pdf.pdfbuilder']
-#pdf_documents = [('index', u'smltk', u'Simple Machine Learning Tool Kit', u'Alessandra Bilardi'),]
+extensions = [
+    "nbsphinx",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+]
+# extensions = ['rst2pdf.pdfbuilder']
+# pdf_documents = [('index', u'smltk', u'Simple Machine Learning Tool Kit', u'Alessandra Bilardi'),]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -51,9 +56,9 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
