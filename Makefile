@@ -21,15 +21,15 @@ doc:
 
 .PHONY: buildtest # build package on testpypi
 buildtest: clean
-	python3 setup.py sdist bdist_wheel; python3 -m twine upload --repository testpypi dist/*
+	python3 -m build; twine upload --repository testpypi dist/*
 
 .PHONY: installtest # install package from testpypi
 installtest:
-	mkdir -p test; cd test; python3 -m pip install --upgrade --index-url https://test.pypi.org/simple/ --no-deps $(PACKAGE_NAME)-$(YOUR_USERNAME); cd -
+	mkdir -p test; cd test; python3 -m pip install --upgrade --index-url https://test.pypi.org/simple/ --no-deps $(PACKAGE_NAME); cd -
 
 .PHONY: build # build package on pypi
 build: clean
-	python3 setup.py sdist bdist_wheel; python3 -m twine upload dist/*
+	python3 -m build; twine upload dist/*
 
 .PHONY: install # install package from pypi
 install:

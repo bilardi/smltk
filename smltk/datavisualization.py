@@ -194,7 +194,7 @@ class DataVisualization:
             :events (list[str]): list of events names for time point
             :timeseries (list[float]): list of values
             :timestamp (list[int|datetime]): time point list
-            :figsize (tuple):
+            :figsize (tuple): default (10, 5)
             :title (str): title of plot
             :x_axis_label (str): label of x axis
             :y_axis_label (str): label of y axis

@@ -7,7 +7,7 @@ Metrics
 .. autosummary::
     :nosignatures:
 
-    smltk.metrics.Metrics
+    Metrics
 
 Targets and Predictions management
 ----------------------------------
@@ -15,8 +15,8 @@ Targets and Predictions management
 .. autosummary::
     :nosignatures:
 
-    smltk.metrics.Metrics.split_tuples
-    smltk.metrics.Metrics.prediction
+    Metrics.split_tuples
+    Metrics.prediction
 
 Metrics management
 ------------------
@@ -24,11 +24,11 @@ Metrics management
 .. autosummary::
     :nosignatures:
 
-    smltk.metrics.Metrics.create_confusion_matrix
-    smltk.metrics.Metrics.get_classification_metrics
-    smltk.metrics.Metrics.scoring
-    smltk.metrics.Metrics.modeling
-    smltk.metrics.Metrics.print_metrics
+    Metrics.create_confusion_matrix
+    Metrics.get_classification_metrics
+    Metrics.scoring
+    Metrics.modeling
+    Metrics.print_metrics
 
 Model management
 ----------------
@@ -36,11 +36,11 @@ Model management
 .. autosummary::
     :nosignatures:
 
-    smltk.metrics.Metrics.save_model
-    smltk.metrics.Metrics.resume_model
+    Metrics.save_model
+    Metrics.resume_model
 
 Detailed list
 -------------
 
-.. autoclass:: smltk.metrics.Metrics
+.. autoclass:: Metrics
     :members:

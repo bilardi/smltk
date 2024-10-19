@@ -7,7 +7,8 @@ PreProcessing
 .. autosummary::
     :nosignatures:
 
-    smltk.preprocessing.Ntk
+    Ntk
+    Indicator
 
 Natural Language Tool Kit
 -------------------------
@@ -15,28 +16,39 @@ Natural Language Tool Kit
 .. autosummary::
     :nosignatures:
 
-    smltk.preprocessing.Ntk.get_tokens_cleaned
-    smltk.preprocessing.Ntk.get_doc_cleaned
-    smltk.preprocessing.Ntk.get_stats_vocab
-    smltk.preprocessing.Ntk.get_words_top
-    smltk.preprocessing.Ntk.get_vocabs_cleaned
-    smltk.preprocessing.Ntk.get_ngrams
-    smltk.preprocessing.Ntk.get_ngrams_features
-    smltk.preprocessing.Ntk.get_features
-    smltk.preprocessing.Ntk.get_features_from_docs
-    smltk.preprocessing.Ntk.create_tuples
-    smltk.preprocessing.Ntk.create_vocab_from_docs
-    smltk.preprocessing.Ntk.create_vocab_from_tuples
-    smltk.preprocessing.Ntk.create_features_from_docs
-    smltk.preprocessing.Ntk.create_features_from_tuples
-    smltk.preprocessing.Ntk.create_ngrams_features_from_docs
-    smltk.preprocessing.Ntk.create_ngrams_features_from_tuples
-    smltk.preprocessing.Ntk.create_words_map
-    smltk.preprocessing.Ntk.create_words_cloud
-    smltk.preprocessing.Ntk.vectorize_docs
+    Ntk.get_tokens_cleaned
+    Ntk.get_doc_cleaned
+    Ntk.get_stats_vocab
+    Ntk.get_words_top
+    Ntk.get_vocabs_cleaned
+    Ntk.get_ngrams
+    Ntk.get_ngrams_features
+    Ntk.get_features
+    Ntk.get_features_from_docs
+    Ntk.create_tuples
+    Ntk.create_vocab_from_docs
+    Ntk.create_vocab_from_tuples
+    Ntk.create_features_from_docs
+    Ntk.create_features_from_tuples
+    Ntk.create_ngrams_features_from_docs
+    Ntk.create_ngrams_features_from_tuples
+    Ntk.create_words_map
+    Ntk.create_words_cloud
+    Ntk.vectorize_docs
+
+Indicators Tool Kit
+-------------------
+
+.. autosummary::
+    :nosignatures:
+
+    Indicator.get_dc_events
 
 Detailed list
 -------------
 
-.. autoclass:: smltk.preprocessing.Ntk
+.. autoclass:: Ntk
+    :members:
+
+.. autoclass:: Indicator
     :members:

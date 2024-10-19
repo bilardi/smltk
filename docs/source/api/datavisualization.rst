@@ -7,7 +7,7 @@ DataVisualization
 .. autosummary::
     :nosignatures:
 
-    smltk.datavisualization.DataVisualization
+    DataVisualization
 
 Features management
 -------------------
@@ -15,8 +15,8 @@ Features management
 .. autosummary::
     :nosignatures:
 
-    smltk.datavisualization.DataVisualization.get_df
-    smltk.datavisualization.DataVisualization.get_inference_df
+    DataVisualization.get_df
+    DataVisualization.get_inference_df
 
 Images management
 -----------------
@@ -24,12 +24,20 @@ Images management
 .. autosummary::
     :nosignatures:
 
-    smltk.datavisualization.DataVisualization.get_inference_objects
-    smltk.datavisualization.DataVisualization.get_inference_objects_df
-    smltk.datavisualization.DataVisualization.plot_inference_objects
+    DataVisualization.get_inference_objects
+    DataVisualization.get_inference_objects_df
+    DataVisualization.plot_inference_objects
+
+Indicators management
+---------------------
+
+.. autosummary::
+    :nosignatures:
+
+    DataVisualization.plot_dc
 
 Detailed list
 -------------
 
-.. autoclass:: smltk.datavisualization.DataVisualization
+.. autoclass:: DataVisualization
     :members:

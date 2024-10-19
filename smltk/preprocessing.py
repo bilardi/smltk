@@ -557,10 +557,10 @@ class Indicator:
         Compute all relevant Directional Change parameters
 
         Arguments:
-            :timeseries (list[float]): list of values
+            :timeseries (list[int|float]): list of values
             :threshold (float): default is 0.0001
         Returns:
-            list of scipy.sparse.csr.csr_matrix, one for each doc
+            list of directional change events
         """
         if timeseries is None and self.timeseries is None:
             raise ValueError(
