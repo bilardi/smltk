@@ -654,7 +654,40 @@ class Indicator:
                     1 if timeseries is None else timeseries[index]
                 )
             previous_change = current_change
-        starts[previous_change][-1] = (
-            1 if timeseries is None else timeseries[-1]
-        )
         return starts
+
+    def get_dc_events_ends(
+        self, events: list = None, timeseries: list = None
+    ) -> dict:
+        """
+        Get only Directional Changes ends
+
+        Arguments:
+            :events (list[str]): list of directional change events
+            :timeseries (list[int|float]): list of values
+        Returns:
+            dictionary of boolean lists when each directional change events ends
+        """
+        ends = {}
+        previous_change = None
+        if events is None and self.events is None:
+            raise ValueError("Events data has to be a no empty numpy.array()")
+        if events is None and self.events is not None:
+            events = self.events
+        if timeseries is None and self.timeseries is not None:
+            timeseries = self.timeseries
+        directional_changes = set(events)
+        for directional_change in directional_changes:
+            if directional_change not in ends:
+                ends[directional_change] = []
+        for index, current_change in enumerate(events):
+            for directional_change in directional_changes:
+                ends[directional_change].append(0)
+            if previous_change != current_change:
+                if previous_change is not None:
+                    ends[previous_change][-2] = (
+                        1 if timeseries is None else timeseries[index]
+                    )
+            previous_change = current_change
+        ends[previous_change][-1] = 1 if timeseries is None else timeseries[-1]
+        return ends

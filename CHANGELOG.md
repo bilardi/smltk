@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.10] - 2024-11-01
+
+### Added
+- new method for points where each directional change ends and updated notebook
+
 ## [2.2.9] - 2024-11-01
 
 ### Added
@@ -145,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.9...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.10...HEAD
+[2.2.10]: https://github.com/bilardi/smltk/compare/v2.2.9...v2.2.10
 [2.2.9]: https://github.com/bilardi/smltk/compare/v2.2.8...v2.2.9
 [2.2.8]: https://github.com/bilardi/smltk/compare/v2.2.7...v2.2.8
 [2.2.7]: https://github.com/bilardi/smltk/compare/v2.2.6...v2.2.7

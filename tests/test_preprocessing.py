@@ -751,6 +751,14 @@ class TestIndicator(unittest.TestCase, Indicator):
                 tv.dc_events_starts[directional_change],
             )
 
+        ends = self.indicator.get_dc_events_ends(events)
+        directional_changes = set(events)
+        for directional_change in directional_changes:
+            self.assertEqual(
+                ends[directional_change],
+                tv.dc_events_ends[directional_change],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
