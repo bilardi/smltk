@@ -43,6 +43,7 @@ Indicators Tool Kit
     :nosignatures:
 
     Indicator.get_dc_events
+    Indicator.get_dc_events_starts
 
 Detailed list
 -------------

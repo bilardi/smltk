@@ -3,7 +3,9 @@
     A collection of methods to simplify your code.
 """
 
+import datetime
 import pandas as pd
+import matplotlib.dates as mpld
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
 import torch
@@ -212,38 +214,32 @@ class DataVisualization:
             }
         if "figsize" not in params:
             params["figsize"] = (10, 5)
-        if "events" in params:
-            colors = params["events"].copy()
-            for event in params["dc_colors"]:
-                colors = list(
-                    map(
-                        lambda x: x.replace(event, params["dc_colors"][event]),
-                        colors,
-                    )
-                )
-
-        handles = []
-        for event in params["dc_colors"]:
-            handles.append(
-                plt.Line2D(
-                    [0], [0], color=params["dc_colors"][event], label=event
-                )
-            )
-
-        if "timeseries" in params and "timestamp" in params:
+        if (
+            "timeseries" in params
+            and "timestamp" in params
+            and "events" in params
+        ):
             _, ax1 = plt.subplots(figsize=params["figsize"])
             ax1.ticklabel_format(style="plain", axis="y", useOffset=False)
-            for i, color in enumerate(colors):
-                ax1.plot(
-                    params["timestamp"][i : i + 2],
-                    params["timeseries"][i : i + 2],
-                    color=color,
+            if isinstance(params["timestamp"][0], type(datetime.datetime)):
+                dates = mpld.date2num(params["timestamp"])
+                ax1.plot_date(
+                    dates, params["timeseries"], color="white", markersize=0.1
                 )
-            ax1.set_xlim(0, len(params["timeseries"]) - 1)
-            ax1.set_ylim(
-                params["timeseries"].min() * 0.9999,
-                params["timeseries"].max() * 1.0001,
-            )
+            handles = []
+            for event in set(params["events"]):
+                color = params["dc_colors"][event]
+                handles.append(
+                    plt.Line2D(
+                        [params["timestamp"][0]], [0], color=color, label=event
+                    )
+                )
+            for index, event in enumerate(params["events"]):
+                ax1.plot(
+                    params["timestamp"][index : index + 2],
+                    params["timeseries"][index : index + 2],
+                    color=params["dc_colors"][event],
+                )
             if "title" in params:
                 ax1.set_title(params["title"])
             if "x_axis_label" in params:

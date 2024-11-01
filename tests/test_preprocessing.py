@@ -5,6 +5,7 @@ from nltk.stem import WordNetLemmatizer
 import scipy
 import numpy as np
 import pandas as pd
+import tests.variables as tv
 from smltk.preprocessing import Ntk
 from smltk.preprocessing import Indicator
 
@@ -737,38 +738,18 @@ class TestIndicator(unittest.TestCase, Indicator):
 
     def test_get_dc_events(self):
         events = self.indicator.get_dc_events(self.timeseries)
-        self.assertEqual(
-            events,
-            [
-                "upward overshoot",
-                "upward overshoot",
-                "upward overshoot",
-                "downward dc",
-                "downward overshoot",
-                "downward overshoot",
-                "upward dc",
-                "upward overshoot",
-                "upward overshoot",
-                "downward dc",
-                "downward overshoot",
-                "downward overshoot",
-                "upward dc",
-                "upward overshoot",
-                "upward overshoot",
-                "downward dc",
-                "downward overshoot",
-                "downward overshoot",
-                "upward dc",
-                "upward overshoot",
-                "upward overshoot",
-                "downward dc",
-                "downward overshoot",
-                "downward overshoot",
-                "upward dc",
-            ],
-        )
+        self.assertEqual(events, tv.dc_events)
+
         indicator = Indicator({"timeseries": self.timeseries})
         self.assertEqual(events, indicator.get_dc_events())
+
+        starts = self.indicator.get_dc_events_starts(events)
+        directional_changes = set(events)
+        for directional_change in directional_changes:
+            self.assertEqual(
+                starts[directional_change],
+                tv.dc_events_starts[directional_change],
+            )
 
 
 if __name__ == "__main__":

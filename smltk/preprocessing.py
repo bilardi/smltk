@@ -534,6 +534,7 @@ class Indicator:
     The class Indicator contains the tool kit to calculate the principal indicators.
 
     Arguments: params (dict) with the keys below
+        :events (list[str]): list of directional change events
         :timeseries (list[int|float]): list of values, default None
 
     Here's an example:
@@ -546,15 +547,18 @@ class Indicator:
         array['upward dc', 'downward dc', ..]
     """
 
+    events = None
     timeseries = None
 
     def __init__(self, params={}):
+        if "events" in params:
+            self.events = params["events"]
         if "timeseries" in params:
             self.timeseries = params["timeseries"]
 
     def get_dc_events(
         self, timeseries: np.array = None, threshold: float = 0.0001
-    ):
+    ) -> list:
         """
         Compute all relevant Directional Change parameters
 
@@ -573,7 +577,6 @@ class Indicator:
 
         time_value_list = []
         time_point_list = []
-        colors = []
         events = []
 
         ext_point_n = timeseries[0]
@@ -589,7 +592,6 @@ class Indicator:
             time_point_list.append(time_point)
             time_point += 1
             if trend_status == "up":
-                colors.append("lime")
                 events.append("upward overshoot")
                 if ts_value < ((1 - threshold) * curr_event_max):
                     trend_status = "down"
@@ -598,14 +600,12 @@ class Indicator:
                     time_point = i - time_point_max
                     num_points_change = i - time_point_max
                     for j in range(1, num_points_change + 1):
-                        colors[-j] = "red"
                         events[-j] = "downward dc"
                 else:
                     if ts_value > curr_event_max:
                         curr_event_max = ts_value
                         time_point_max = i
             else:
-                colors.append("lightcoral")
                 events.append("downward overshoot")
                 if ts_value > ((1 + threshold) * curr_event_min):
                     trend_status = "up"
@@ -614,10 +614,47 @@ class Indicator:
                     time_point = i - time_point_min
                     num_points_change = i - time_point_min
                     for j in range(1, num_points_change + 1):
-                        colors[-j] = "green"
                         events[-j] = "upward dc"
                 else:
                     if ts_value < curr_event_min:
                         curr_event_min = ts_value
                         time_point_min = i
+        self.events = events
         return events
+
+    def get_dc_events_starts(
+        self, events: list = None, timeseries: list = None
+    ) -> dict:
+        """
+        Get only Directional Changes starts
+
+        Arguments:
+            :events (list[str]): list of directional change events
+            :timeseries (list[int|float]): list of values
+        Returns:
+            dictionary of boolean lists when each directional change events starts
+        """
+        starts = {}
+        previous_change = None
+        if events is None and self.events is None:
+            raise ValueError("Events data has to be a no empty numpy.array()")
+        if events is None and self.events is not None:
+            events = self.events
+        if timeseries is None and self.timeseries is not None:
+            timeseries = self.timeseries
+        directional_changes = set(events)
+        for directional_change in directional_changes:
+            if directional_change not in starts:
+                starts[directional_change] = []
+        for index, current_change in enumerate(events):
+            for directional_change in directional_changes:
+                starts[directional_change].append(0)
+            if previous_change != current_change:
+                starts[current_change][-1] = (
+                    1 if timeseries is None else timeseries[index]
+                )
+            previous_change = current_change
+        starts[previous_change][-1] = (
+            1 if timeseries is None else timeseries[-1]
+        )
+        return starts
