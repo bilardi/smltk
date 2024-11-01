@@ -8,7 +8,9 @@ from sklearn.tree import DecisionTreeClassifier
 
 import requests
 from PIL import Image
-import torchvision.transforms as transforms
+from torchvision import transforms
+
+# from torchvision.models import ResNet50_Weights
 import torch
 from smltk.datavisualization import DataVisualization
 
@@ -69,7 +71,11 @@ class TestDataVisualization(unittest.TestCase, DataVisualization):
         )
         img = transform(im).unsqueeze(0)
         model = torch.hub.load(
-            "facebookresearch/detr", "detr_resnet50", pretrained=True
+            "facebookresearch/detr",
+            "detr_resnet50",
+            pretrained=True,
+            # "facebookresearch/detr", "detr_resnet50", weights=ResNet50_Weights.DEFAULT (IMAGENET1K_V2)
+            # "facebookresearch/detr", "detr_resnet50", weights=ResNet50_Weights.IMAGENET1K_V1
         )
         model.eval()
         prediction = model(img)

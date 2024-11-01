@@ -2,6 +2,7 @@
 
     A collection of methods to simplify your code.
 """
+
 import re
 import string
 from collections import defaultdict
@@ -23,7 +24,7 @@ from nltk.util import ngrams as ng
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-#%matplotlib inline
+# %matplotlib inline
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -108,7 +109,8 @@ class Ntk:
         # split into tokens by white space
         tokens = self.word_tokenize(doc)
         # prepare regex for char filtering
-        punctuation = re.compile("[%s]" % re.escape(string.punctuation))
+        # punctuation = re.compile("[%s]" % re.escape(string.punctuation))
+        punctuation = re.compile(f"[{re.escape(string.punctuation)}]")
         # remove punctuation from each word
         tokens = [punctuation.sub("", token) for token in tokens]
         # remove remaining tokens with no alphabetic characters
@@ -546,7 +548,7 @@ class Indicator:
 
     timeseries = None
 
-    def __init__(self, params=[]):
+    def __init__(self, params={}):
         if "timeseries" in params:
             self.timeseries = params["timeseries"]
 

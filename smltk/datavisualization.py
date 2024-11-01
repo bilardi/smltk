@@ -2,6 +2,7 @@
 
     A collection of methods to simplify your code.
 """
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
@@ -25,7 +26,7 @@ class DataVisualization:
         Returns:
             Pandas DataFrame
         """
-        if type(data) == type(self.sklearn):
+        if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(data.target, columns=["target"])
             df["target_name"] = df["target"].apply(
                 lambda x: data.target_names[x]
@@ -47,7 +48,7 @@ class DataVisualization:
         Returns:
             Pandas DataFrame
         """
-        if type(data) == type(self.sklearn):
+        if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(y_test, columns=["target"])
             df["target_name"] = df["target"].apply(
                 lambda x: data.target_names[x]

@@ -33,7 +33,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         classifier = nltk.NaiveBayesClassifier.train(features_lemma)
         return classifier, features_lemma
 
-    def prediction(self):
+    def load_prediction(self):
         classifier, features_lemma = self.training()
         y_test, y_pred = self.mtr.prediction(
             classifier, "classify", features_lemma
@@ -59,7 +59,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(y_test, y_pred)
 
     def test_create_confusion_matrix(self):
-        y_test, y_pred = self.prediction()
+        y_test, y_pred = self.load_prediction()
         np.testing.assert_array_equal(
             self.mtr.create_confusion_matrix(y_test, y_pred, True),
             [[2, 0], [0, 2]],

@@ -649,16 +649,16 @@ class TestNtk(unittest.TestCase, Ntk):
             },
         )
 
-    def create_words_map(self):
+    def load_words_map(self):
         tokens = self.ntk.get_tokens_cleaned(self.doc)
         return self.ntk.create_words_map(tokens)
 
     def test_create_words_map(self):
-        words_map = self.create_words_map()
+        words_map = self.load_words_map()
         self.assertEqual(words_map, self.default_doc_filtered)
 
     def test_create_words_cloud(self):
-        words_map = self.create_words_map()
+        words_map = self.load_words_map()
         words_cloud = self.ntk.create_words_cloud(words_map, True)
         np.testing.assert_array_equal(
             words_cloud.words_,

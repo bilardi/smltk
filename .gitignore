@@ -6,6 +6,7 @@ smltk.egg-info
 build
 dist
 .cache
+.env
 .ipython
 .jupyter
 .local

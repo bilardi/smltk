@@ -2,6 +2,7 @@
 
     A collection of methods to simplify your code.
 """
+
 import pickle
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
@@ -9,7 +10,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import matthews_corrcoef
 
-#%pip install mlxtend --upgrade
+# %pip install mlxtend --upgrade
 from mlxtend.evaluate import bias_variance_decomp
 import seaborn as sns
 import numpy as np
