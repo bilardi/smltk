@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.9] - 2024-11-01
+
+### Added
+- new method for points where each directional change starts and updated plot and notebook
+
+## [2.2.8] - 2024-10-19
+
+### Added
+- new methods for directional change in the class Indicator and DataVisualization
+
 ## [2.2.7] - 2023-03-25
 
 ### Fixed
@@ -135,7 +145,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.7...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.9...HEAD
+[2.2.9]: https://github.com/bilardi/smltk/compare/v2.2.8...v2.2.9
+[2.2.8]: https://github.com/bilardi/smltk/compare/v2.2.7...v2.2.8
 [2.2.7]: https://github.com/bilardi/smltk/compare/v2.2.6...v2.2.7
 [2.2.6]: https://github.com/bilardi/smltk/compare/v2.2.5...v2.2.6
 [2.2.5]: https://github.com/bilardi/smltk/compare/v2.2.4...v2.2.5
