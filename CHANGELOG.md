@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.11] - 2025-07-25
+
+### Added
+- new method for eda
+
+### Changed
+- in the usage documentation, how to synthesize timeseries with trend
+
 ## [2.2.10] - 2024-11-01
 
 ### Added
@@ -150,7 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.10...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.11...HEAD
+[2.2.11]: https://github.com/bilardi/smltk/compare/v2.2.10...v2.2.11
 [2.2.10]: https://github.com/bilardi/smltk/compare/v2.2.9...v2.2.10
 [2.2.9]: https://github.com/bilardi/smltk/compare/v2.2.8...v2.2.9
 [2.2.8]: https://github.com/bilardi/smltk/compare/v2.2.7...v2.2.8

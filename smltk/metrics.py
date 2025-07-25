@@ -1,6 +1,6 @@
 """The class for testing models and reporting results
 
-    A collection of methods to simplify your code.
+A collection of methods to simplify your code.
 """
 
 import pickle

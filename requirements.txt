@@ -1,5 +1,5 @@
+klib
 mlxtend
-mockseries
 nltk
 Pillow
 requests

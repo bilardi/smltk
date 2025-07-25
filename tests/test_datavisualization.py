@@ -93,6 +93,36 @@ class TestDataVisualization(unittest.TestCase, DataVisualization):
             df.groupby("class").count()["probability"].tolist(), [5, 3, 1, 4]
         )
 
+    def test_get_eda(self):
+        iris = load_iris()
+        df = self.dv.get_df(iris)
+        features = self.dv.get_eda(
+            "target", df, {"columns_to_filter": ["target"]}
+        )
+
+        self.assertDictEqual(
+            features,
+            {
+                "data_amount": 150,
+                "hue_order": [0, 1, 2],
+                "categorical_features": ["target_name"],
+                "numerical_features": [
+                    "sepal length (cm)",
+                    "sepal width (cm)",
+                    "petal length (cm)",
+                    "petal width (cm)",
+                ],
+                "data_missing": {
+                    "target": 0.0,
+                    "target_name": 0.0,
+                    "sepal length (cm)": 0.0,
+                    "sepal width (cm)": 0.0,
+                    "petal length (cm)": 0.0,
+                    "petal width (cm)": 0.0,
+                }
+            }
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

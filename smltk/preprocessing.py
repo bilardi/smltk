@@ -1,6 +1,6 @@
 """The classes for data preparation with nltk, sklearn and more
 
-    A collection of methods to simplify your code.
+A collection of methods to simplify your code.
 """
 
 import re

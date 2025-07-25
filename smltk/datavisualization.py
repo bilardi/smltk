@@ -1,12 +1,14 @@
 """The class for managing the data of the main repositories
 
-    A collection of methods to simplify your code.
+A collection of methods to simplify your code.
 """
 
 import datetime
+import klib
 import pandas as pd
 import matplotlib.dates as mpld
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.datasets import load_iris
 import torch
 import smltk.classes_map as classes
@@ -250,3 +252,145 @@ class DataVisualization:
             if return_ax is True:
                 return ax1
             plt.show()
+
+    ### EDA ###
+    def get_features_info(self, target, data, params: dict = {}) -> dict:
+        """
+        Calculate features types and data missing percentage
+
+        Arguments:
+            :target (string): name of feature target
+            :data (Pandas DataFrame): features to analyze
+            :params (dict) with the keys below
+            :columns_to_filter (list[str]): list of features names to filter
+
+        Returns:
+            dict with categorical features list and numerical features list
+        """
+        if "columns_to_filter" not in params.keys():
+            params["columns_to_filter"] = []
+
+        hue_order = sorted(data[target].unique().tolist())
+        cat_features = []
+        num_features = []
+        for feature in data.columns:
+            if feature in params["columns_to_filter"]:
+                continue
+            elif data[feature].dtype == type(object):
+                cat_features.append(feature)
+            else:
+                num_features.append(feature)
+
+        return {
+            "data_amount": int(data[target].count()),
+            "hue_order": hue_order,
+            "categorical_features": cat_features,
+            "numerical_features": num_features,
+            "data_missing": (data.isnull().mean() * 100).to_dict(),
+        }
+
+    def get_eda(self, target, data, params: dict = {}) -> dict:
+        """
+        Plot images for exploratory data analysis
+
+        Arguments:
+            :target (string): name of feature target
+            :data (Pandas DataFrame): features to analyze
+            :params (dict): with the keys below
+            :columns_to_filter (list[str]): list of features names to filter
+            :color_palette (string): matplotlib colormap name, by default Set2
+            :sample.frac (string): fraction of axis items to return
+            :corr_plot.cmap (string): the mapping from data values to color space, matplotlib colormap name or object, or list of colors, by default viridis
+            :missingval_plot.cmap (string): matplotlib colormap name or object, by default Set2
+
+        Returns:
+            plots and features slitted in categorical and numerical features
+        """
+        if "color_palette" not in params.keys():
+            params["color_palette"] = "Set2"
+        if "sample.frac" not in params.keys():
+            params["sample.frac"] = 0.01
+        if "corr_plot.cmap" not in params.keys():
+            params["corr_plot.cmap"] = "viridis"
+        if "missingval_plot.cmap" not in params.keys():
+            params["missingval_plot.cmap"] = "Set2"
+
+        sns.set_palette(sns.color_palette(params["color_palette"]))
+        features = self.get_features_info(target, data, params)
+
+        ## categorical features - bar charts matrix
+        cat_features = features["categorical_features"]
+        plt.figure(figsize=(10, len(cat_features) * 2))
+        for i, col in enumerate(cat_features):
+            plt.subplot(len(cat_features) // 2 + 1, 2, i + 1)
+            sns.set_style("white")
+            sns.countplot(
+                x=col, hue=target, hue_order=features["hue_order"], data=data.sample(frac=params["sample.frac"])
+            )
+            plt.title(f"{col} vs {target}")
+            if len(features["hue_order"]) > 25:
+                legend = plt.gca().get_legend()
+                if legend is not None:
+                    legend.remove()
+            plt.tight_layout()
+        plt.show()
+
+        ## numerical features - pair plots matrix
+        num_features = features["numerical_features"]
+        if len(num_features) > 0:
+            sns.pairplot(
+                data[num_features + [target]].sample(frac=params["sample.frac"]),
+                hue=target,
+                hue_order=features["hue_order"],
+                corner=True,
+            )
+
+        ## filtered features - violin plots matrix
+        filtered_features = cat_features + num_features
+        fig, axes = plt.subplots(
+            len(filtered_features) // 2,
+            2,
+            figsize=(10, len(filtered_features) * 2),
+        )
+        for i, ax in enumerate(axes.flatten()):
+            sns.violinplot(
+                x=target,
+                y=filtered_features[i],
+                data=data.sample(frac=params["sample.frac"]),
+                ax=ax,
+                hue=target,
+                hue_order=features["hue_order"],
+            )
+            ax.set_title(f"{filtered_features[i]} vs {target}")
+        plt.tight_layout()
+        plt.show()
+
+        ## filtered features - bar charts
+        custom_palette = sns.color_palette(
+            params["color_palette"], len(data[target].unique())
+        )
+        for feature in filtered_features:
+            contingency_table = pd.crosstab(
+                data[feature], data[target], normalize="index"
+            )
+            sns.set_style("white")
+            contingency_table.plot(
+                kind="bar", stacked=True, color=custom_palette, figsize=(20, 4)
+            )
+            plt.title(f"Percentage Distribution of Target across {feature}")
+            plt.xlabel(feature)
+            plt.ylabel("Percentage")
+            plt.legend(title="Target Class")
+            if len(features["hue_order"]) > 25:
+                legend = plt.gca().get_legend()
+                if legend is not None:
+                    legend.remove()
+            plt.show()
+
+        ## all features
+        if len(num_features) > 0:
+            klib.corr_plot(data.sample(frac=params["sample.frac"]), cmap=params["corr_plot.cmap"])
+        klib.missingval_plot(data.sample(frac=params["sample.frac"]), cmap=params["missingval_plot.cmap"])
+        klib.cat_plot(data.sample(frac=params["sample.frac"]))
+
+        return features
