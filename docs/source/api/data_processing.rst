@@ -1,14 +1,28 @@
-PreProcessing
-=============
+Data Processing
+===============
 
-.. automodule:: smltk.preprocessing
+.. automodule:: smltk.data_processing
     :no-members:
 
 .. autosummary::
     :nosignatures:
 
+    DataProcessing
     Ntk
-    Indicator
+
+Data Processing
+---------------
+
+.. autosummary::
+    :nosignatures:
+
+    DataProcessing.get_df
+    DataProcessing.get_inference_df
+    DataProcessing.transform_categories
+    DataProcessing.clean_doc
+    DataProcessing.tokenize_and_clean_doc
+    DataProcessing.get_tokens_cleaned
+    DataProcessing.get_doc_cleaned
 
 Natural Language Tool Kit
 -------------------------
@@ -16,8 +30,6 @@ Natural Language Tool Kit
 .. autosummary::
     :nosignatures:
 
-    Ntk.get_tokens_cleaned
-    Ntk.get_doc_cleaned
     Ntk.get_stats_vocab
     Ntk.get_words_top
     Ntk.get_vocabs_cleaned
@@ -36,20 +48,11 @@ Natural Language Tool Kit
     Ntk.create_words_cloud
     Ntk.vectorize_docs
 
-Indicators Tool Kit
--------------------
-
-.. autosummary::
-    :nosignatures:
-
-    Indicator.get_dc_events
-    Indicator.get_dc_events_starts
-
 Detailed list
 -------------
 
-.. autoclass:: Ntk
+.. autoclass:: DataProcessing
     :members:
 
-.. autoclass:: Indicator
+.. autoclass:: Ntk
     :members:

@@ -19,6 +19,12 @@ clean:
 doc: 
 	cd docs; make html; cd -
 
+.PHONY: localbuild # build package locally
+localbuild: clean
+	pip install black build twine
+	black .
+	python3 -m build; pip install dist/*whl
+
 .PHONY: buildtest # build package on testpypi
 buildtest: clean
 	python3 -m build; twine upload --repository testpypi dist/*

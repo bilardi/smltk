@@ -19,7 +19,7 @@ If you want to use this package into your code, you can install by python3-pip:
 
     pip3 install smltk
     python3
-    >>> from smltk.metrics import Metrics
+    >>> from smltk.modeling import Modeling
     >>> help(Metrics)
 
 The package is not self-consistent. So if you want to contribute, you have to download the package by github and to install the requirements
@@ -29,6 +29,26 @@ The package is not self-consistent. So if you want to contribute, you have to do
     git clone https://github.com/bilardi/smltk
     cd smltk/
     pip3 install --upgrade -r requirements.txt
+
+But you can also decide which package download:
+
+* if you want the basic package,
+
+.. code-block:: bash
+
+    pip3 install smltk
+
+* if you want to download the dependencies of the class Ntk,
+
+.. code-block:: bash
+
+    pip3 install smltk[ntk]
+
+* if you want to download the dependencies of the class ObjectDetection,
+
+.. code-block:: bash
+
+    pip3 install smltk[object_detection]
 
 Read the documentation on `readthedocs <https://smltk.readthedocs.io/en/latest/>`_ for
 

@@ -17,7 +17,20 @@ import numpy as np
 import pandas as pd
 
 
-class Metrics:
+class Modeling:
+    """
+    The class Modeling contains methods to manage the modeling, from evaluation to save the mode.
+
+    Here's an example:
+
+        >>> from smltk.modeling import Modeling
+        >>> y_test, y_pred = self.load_prediction()
+        >>> mdl = Modeling()
+        >>> confusion_matrix = mdl.create_confusion_matrix(y_test, y_pred, True)
+        >>> print(confusion_matrix)
+        [[2, 0], [0, 2]]
+    """
+
     def split_tuples(self, tuples):
         """
         Splits tuples of sample and its target in the relative lists

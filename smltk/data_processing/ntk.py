@@ -3,12 +3,22 @@
 A collection of methods to simplify your code.
 """
 
+try:
+    import nltk
+    from wordcloud import WordCloud
+except ImportError as error:
+    message = (
+        "The class Ntk requirements are not installed.\n\n"
+        "Please use one fo the commands below:\n\n"
+        '  pip install "smltk[ntk]" --upgrade'
+        '  python -m pip install "smltk[ntk]" --upgrade'
+    )
+    raise ImportError(str(error) + "\n\n" + message) from error
+
 import re
 import string
 from collections import defaultdict
 from collections import Counter
-import numpy as np
-import nltk
 
 nltk.download("punkt_tab")
 nltk.download("wordnet")
@@ -21,7 +31,6 @@ from nltk.corpus import wordnet as wn
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams as ng
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 # %matplotlib inline
@@ -29,10 +38,14 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from .data_processing import DataProcessing
 
-class Ntk:
+
+class Ntk(DataProcessing):
     """
     The class Ntk contains the Natural Language Processing tool kit.
+    This class extends the basic class DataProcessing and it overrides the methods
+    lemmatize(), tokenize() and tokenize_and_clean_doc().
 
     Arguments: params (dict) with the keys below
         :language (str): default is english
@@ -43,7 +56,7 @@ class Ntk:
 
     Here's an example:
 
-        >>> from smltk.preprocessing import Ntk
+        >>> from smltk.data_processing import Ntk
         >>> doc = 'Good case, Excellent value.'
         >>> ntk = Ntk()
         >>> get_doc_cleaned = ntk.get_doc_cleaned(doc)
@@ -59,7 +72,8 @@ class Ntk:
     sia = None
     vectorizer = None
 
-    def __init__(self, params=[]):
+    def __init__(self, params: list = []):
+        super().__init__(params)
         if "language" in params:
             self.language = params["language"]
         if "lemmatizer" in params:
@@ -84,7 +98,18 @@ class Ntk:
                 self.tag_map[pos] = wn.NOUN
         self.sia = SentimentIntensityAnalyzer()
 
-    def word_tokenize(self, doc):
+    def __call__(self, doc: str) -> list:
+        """
+        Alias of get_tokens_cleaned for using in models
+
+        Arguments:
+            :doc (str): text
+        Returns:
+            list of tokens cleaned
+        """
+        return self.get_tokens_cleaned(doc)
+
+    def tokenize(self, doc: str) -> list:
         """
         Splits document in each word
 
@@ -93,9 +118,12 @@ class Ntk:
         Returns:
             list of words
         """
+        # split into tokens by white space
         return nltk.word_tokenize(doc)
 
-    def tokenize_and_clean_doc(self, doc):
+    def tokenize_and_clean_doc(
+        self, doc: str, is_alpha: bool = False, is_punctuation: bool = False
+    ) -> list:
         """
         Tokenizes doc
         and filters tokens from punctuation, numbers, stop words, and words <= min_length
@@ -106,24 +134,15 @@ class Ntk:
         Returns:
             list of words filtered
         """
-        # split into tokens by white space
-        tokens = self.word_tokenize(doc)
-        # prepare regex for char filtering
-        # punctuation = re.compile("[%s]" % re.escape(string.punctuation))
-        punctuation = re.compile(f"[{re.escape(string.punctuation)}]")
-        # remove punctuation from each word
-        tokens = [punctuation.sub("", token) for token in tokens]
-        # remove remaining tokens with no alphabetic characters
-        tokens = [token for token in tokens if token.isalpha()]
-        # convert in lower case
-        tokens = [token.lower() for token in tokens]
+        tokens = self.tokenize(doc)
+        tokens = self.clean_doc(tokens, is_alpha, is_punctuation)
         # filter out stop words
         tokens = [token for token in tokens if not token in self.stop_words]
         # filter out short tokens
         tokens = [token for token in tokens if len(token) >= self.min_length]
         return tokens
 
-    def lemmatize(self, tokens):
+    def lemmatize(self, tokens: list) -> list:
         """
         Lemmatizes tokens
 
@@ -139,51 +158,9 @@ class Ntk:
         ]
         return lemmas
 
-    def get_tokens_cleaned(self, doc, is_lemma=True):
-        """
-        Tokenizes doc
-        and filters tokens from punctuation, numbers, stop words, and words <= min_length
-        and changes upper characters in lower characters
-        and if is_lemma == True, also it lemmatizes
-
-        Arguments:
-            :doc (str): text
-            :is_lemma (bool): default is True
-        Returns:
-            list of tokens cleaned
-        """
-        tokens = self.tokenize_and_clean_doc(doc)
-        if is_lemma is True:
-            tokens = self.lemmatize(tokens)
-        return tokens
-
-    def __call__(self, doc):
-        """
-        Alias of get_tokens_cleaned for using in models
-
-        Arguments:
-            :doc (str): text
-        Returns:
-            list of tokens cleaned
-        """
-        return self.get_tokens_cleaned(doc)
-
-    def get_doc_cleaned(self, doc, is_lemma=True):
-        """
-        Filters doc from punctuation, numbers, stop words, and words <= min_length
-        and changes upper characters in lower characters
-        and if is_lemma == True, also it lemmatizes
-
-        Arguments:
-            :doc (str): text
-            :is_lemma (bool): default is True
-        Returns:
-            string cleaned
-        """
-        tokens = self.get_tokens_cleaned(doc, is_lemma)
-        return " ".join(map(str, tokens))
-
-    def add_doc_to_vocab(self, doc, vocab, is_lemma=True):
+    def add_doc_to_vocab(
+        self, doc: str, vocab: Counter, is_lemma: bool = True
+    ) -> list:
         """
         Adds tokens of that doc to vocabulary and updates vocabulary
 
@@ -198,7 +175,9 @@ class Ntk:
         vocab.update(tokens)
         return tokens
 
-    def create_vocab_from_docs(self, docs, is_lemma=True):
+    def create_vocab_from_docs(
+        self, docs: list, is_lemma: bool = True
+    ) -> dict:
         """
         Creates vocabulary from list of docs
 
@@ -212,7 +191,7 @@ class Ntk:
         [self.add_doc_to_vocab(doc, vocab, is_lemma) for doc in docs]
         return vocab
 
-    def get_stats_vocab(self, vocab, min_occurance=1):
+    def get_stats_vocab(self, vocab: Counter, min_occurance: int = 1) -> tuple:
         """
         Gets statistics of vocabulary
 
@@ -229,7 +208,7 @@ class Ntk:
         total = len(vocab)
         return partial, total
 
-    def create_tuples(self, docs=[], target=[]):
+    def create_tuples(self, docs: list = [], target: list = []) -> list:
         """
         Creates tuples with sample and its target
 
@@ -241,7 +220,7 @@ class Ntk:
         """
         return list(zip(docs, target))
 
-    def create_vocab_from_tuples(self, tuples, is_lemma=True):
+    def create_vocab_from_tuples(self, tuples: list, is_lemma: bool = True):
         """
         Creates vocabulary from list of tuples
 
@@ -527,167 +506,3 @@ class Ntk:
             return self.vectorizer.transform(docs)
         self.vectorizer = vectorizer
         return self.vectorizer.fit_transform(docs)
-
-
-class Indicator:
-    """
-    The class Indicator contains the tool kit to calculate the principal indicators.
-
-    Arguments: params (dict) with the keys below
-        :events (list[str]): list of directional change events
-        :timeseries (list[int|float]): list of values, default None
-
-    Here's an example:
-
-        >>> from smltk.preprocessing import Indicator
-        >>> timeseries = numpy.array()
-        >>> indicator = Indicator()
-        >>> dc_events = indicator.get_dc_events(timeseries)
-        >>> print(dc_events)
-        array['upward dc', 'downward dc', ..]
-    """
-
-    events = None
-    timeseries = None
-
-    def __init__(self, params={}):
-        if "events" in params:
-            self.events = params["events"]
-        if "timeseries" in params:
-            self.timeseries = params["timeseries"]
-
-    def get_dc_events(
-        self, timeseries: np.array = None, threshold: float = 0.0001
-    ) -> list:
-        """
-        Compute all relevant Directional Change parameters
-
-        Arguments:
-            :timeseries (list[int|float]): list of values
-            :threshold (float): default is 0.0001
-        Returns:
-            list of directional change events
-        """
-        if timeseries is None and self.timeseries is None:
-            raise ValueError(
-                "Timeseries data has to be a no empty numpy.array()"
-            )
-        if timeseries is None and self.timeseries is not None:
-            timeseries = self.timeseries
-
-        time_value_list = []
-        time_point_list = []
-        events = []
-
-        ext_point_n = timeseries[0]
-        curr_event_max = timeseries[0]
-        curr_event_min = timeseries[0]
-        time_point_max = 0
-        time_point_min = 0
-        trend_status = "up"
-        time_point = 0
-        for i, ts_value in enumerate(timeseries):
-            time_value = (ts_value - ext_point_n) / (ext_point_n * threshold)
-            time_value_list.append(time_value)
-            time_point_list.append(time_point)
-            time_point += 1
-            if trend_status == "up":
-                events.append("upward overshoot")
-                if ts_value < ((1 - threshold) * curr_event_max):
-                    trend_status = "down"
-                    curr_event_min = ts_value
-                    ext_point_n = curr_event_max
-                    time_point = i - time_point_max
-                    num_points_change = i - time_point_max
-                    for j in range(1, num_points_change + 1):
-                        events[-j] = "downward dc"
-                else:
-                    if ts_value > curr_event_max:
-                        curr_event_max = ts_value
-                        time_point_max = i
-            else:
-                events.append("downward overshoot")
-                if ts_value > ((1 + threshold) * curr_event_min):
-                    trend_status = "up"
-                    curr_event_max = ts_value
-                    ext_point_n = curr_event_min
-                    time_point = i - time_point_min
-                    num_points_change = i - time_point_min
-                    for j in range(1, num_points_change + 1):
-                        events[-j] = "upward dc"
-                else:
-                    if ts_value < curr_event_min:
-                        curr_event_min = ts_value
-                        time_point_min = i
-        self.events = events
-        return events
-
-    def get_dc_events_starts(
-        self, events: list = None, timeseries: list = None
-    ) -> dict:
-        """
-        Get only Directional Changes starts
-
-        Arguments:
-            :events (list[str]): list of directional change events
-            :timeseries (list[int|float]): list of values
-        Returns:
-            dictionary of boolean lists when each directional change events starts
-        """
-        starts = {}
-        previous_change = None
-        if events is None and self.events is None:
-            raise ValueError("Events data has to be a no empty numpy.array()")
-        if events is None and self.events is not None:
-            events = self.events
-        if timeseries is None and self.timeseries is not None:
-            timeseries = self.timeseries
-        directional_changes = set(events)
-        for directional_change in directional_changes:
-            if directional_change not in starts:
-                starts[directional_change] = []
-        for index, current_change in enumerate(events):
-            for directional_change in directional_changes:
-                starts[directional_change].append(0)
-            if previous_change != current_change:
-                starts[current_change][-1] = (
-                    1 if timeseries is None else timeseries[index]
-                )
-            previous_change = current_change
-        return starts
-
-    def get_dc_events_ends(
-        self, events: list = None, timeseries: list = None
-    ) -> dict:
-        """
-        Get only Directional Changes ends
-
-        Arguments:
-            :events (list[str]): list of directional change events
-            :timeseries (list[int|float]): list of values
-        Returns:
-            dictionary of boolean lists when each directional change events ends
-        """
-        ends = {}
-        previous_change = None
-        if events is None and self.events is None:
-            raise ValueError("Events data has to be a no empty numpy.array()")
-        if events is None and self.events is not None:
-            events = self.events
-        if timeseries is None and self.timeseries is not None:
-            timeseries = self.timeseries
-        directional_changes = set(events)
-        for directional_change in directional_changes:
-            if directional_change not in ends:
-                ends[directional_change] = []
-        for index, current_change in enumerate(events):
-            for directional_change in directional_changes:
-                ends[directional_change].append(0)
-            if previous_change != current_change:
-                if previous_change is not None:
-                    ends[previous_change][-2] = (
-                        1 if timeseries is None else timeseries[index]
-                    )
-            previous_change = current_change
-        ends[previous_change][-1] = 1 if timeseries is None else timeseries[-1]
-        return ends

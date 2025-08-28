@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 79
-target-version = ['py39']
+target-version = ["py313"]
 include = '\.pyi?$'
 exclude = '''
 (
@@ -13,3 +13,32 @@ exclude = '''
   | __pycache__
 )
 '''
+
+[project]
+name = "smltk"
+dynamic = ["version"]
+description = "Simple Machine Learning Tool Kit package"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+authors = [{ name = "Alessandra Bilardi", email = "alessandra.bilardi@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.12"
+dependencies = ["klib", "matplotlib", "mlxtend", "numpy", "pandas", "scikit-learn", "seaborn", "simplemma", "snowballstemmer", "tokenizers"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Bug_Reports = "https://github.com/bilardi/smltk/issues"
+Documentation = "https://smltk.readthedocs.io/"
+Funding = "https://donate.pypi.org"
+Source = "https://github.com/bilardi/smltk"
+
+[tool.setuptools.dynamic]
+version = { attr = "smltk.__version__" }
+
+[project.optional-dependencies]
+ntk = ["nltk", "wordcloud"]
+object_detection = ["torch"]
+complete = ["nltk", "torch", "wordcloud"]

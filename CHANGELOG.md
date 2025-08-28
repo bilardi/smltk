@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2025-08-28
+
+### Added
+- EDA methods move on DataAnalysis
+- split loading as needed
+  - the class Ntk needs nltk and wordcloud, pip install "smltk[ntk]"
+  - the class ObjectDetection needs torch, pip install "smltk[object_detection]"
+  - the basic package not loads these packages, pip install smltk
+
+### Changed
+- import Ntk from data_processing
+  - the class Ntk extends DataProcessing
+  - removed inherited methods
+  - renamed method named word_tokenize in method named tokenize
+- import Indicator from feature_engineering
+- renamed class Metrics in Modeling
+  - import Modeling from modeling
+- renamed class DataVisualization in ObjectDetection
+  - import ObjectDetection from modeling
+- package management from setup.py to pyprojet.toml
+
+### Updated
+- tests and documentation
+
 ## [2.2.11] - 2025-07-25
 
 ### Added
@@ -158,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v2.2.11...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/bilardi/smltk/compare/v2.2.11...v3.0.0
 [2.2.11]: https://github.com/bilardi/smltk/compare/v2.2.10...v2.2.11
 [2.2.10]: https://github.com/bilardi/smltk/compare/v2.2.9...v2.2.10
 [2.2.9]: https://github.com/bilardi/smltk/compare/v2.2.8...v2.2.9

@@ -6,12 +6,12 @@ import pandas as pd
 from sklearn.datasets import load_wine
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import SGDClassifier
-from smltk.metrics import Metrics
-from smltk.preprocessing import Ntk
+from smltk.modeling import Modeling
+from smltk.data_processing import Ntk
 
 
-class TestMetrics(unittest.TestCase, Metrics):
-    mtr = None
+class TestModeling(unittest.TestCase, Modeling):
+    mdl = None
     ntk = None
     doc = "Good case, Excellent value. I am agree. There is a mistake. Item Does Not Match Picture."
     docs = []
@@ -19,7 +19,7 @@ class TestMetrics(unittest.TestCase, Metrics):
     tuples = []
 
     def __init__(self, *args, **kwargs):
-        self.mtr = Metrics()
+        self.mdl = Modeling()
         self.ntk = Ntk()
         self.docs = nltk.sent_tokenize(self.doc)
         self.target = [1, 1, 0, 0]
@@ -35,7 +35,7 @@ class TestMetrics(unittest.TestCase, Metrics):
 
     def load_prediction(self):
         classifier, features_lemma = self.training()
-        y_test, y_pred = self.mtr.prediction(
+        y_test, y_pred = self.mdl.prediction(
             classifier, "classify", features_lemma
         )
         return y_test, y_pred
@@ -47,35 +47,35 @@ class TestMetrics(unittest.TestCase, Metrics):
 
     def test_prediction(self):
         classifier, features_lemma = self.training()
-        y_test, y_pred = self.mtr.prediction(
+        y_test, y_pred = self.mdl.prediction(
             classifier, "classify", features_lemma
         )
         self.assertEqual(y_test, y_pred)
-        y_test, y_pred = self.mtr.prediction(classifier, "classify", [])
+        y_test, y_pred = self.mdl.prediction(classifier, "classify", [])
         self.assertEqual(y_test, y_pred)
         np.testing.assert_array_equal(y_pred, [])
         X_test = pd.Series(features_lemma)
-        y_test, y_pred = self.mtr.prediction(classifier, "classify", X_test)
+        y_test, y_pred = self.mdl.prediction(classifier, "classify", X_test)
         self.assertEqual(y_test, y_pred)
 
     def test_create_confusion_matrix(self):
         y_test, y_pred = self.load_prediction()
         np.testing.assert_array_equal(
-            self.mtr.create_confusion_matrix(y_test, y_pred, True),
+            self.mdl.create_confusion_matrix(y_test, y_pred, True),
             [[2, 0], [0, 2]],
         )
 
     def test_is_binary_classification(self):
         y_test = [1, 0, 1]
         y_pred = [0, 1, 0]
-        self.assertTrue(self.mtr.is_binary_classification(y_test, y_pred))
+        self.assertTrue(self.mdl.is_binary_classification(y_test, y_pred))
         y_pred = [0, 1, 2]
-        self.assertFalse(self.mtr.is_binary_classification(y_test, y_pred))
+        self.assertFalse(self.mdl.is_binary_classification(y_test, y_pred))
 
     def test_clean_binary_classification(self):
         y_test = [1, 0, 1]
         y_pred = [0, 1, 0]
-        y_test_cleaned, y_pred_cleaned = self.mtr.clean_binary_classification(
+        y_test_cleaned, y_pred_cleaned = self.mdl.clean_binary_classification(
             y_test, y_pred
         )
         self.assertEqual(y_test_cleaned[0], 1)
@@ -84,7 +84,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         self.assertEqual(y_pred_cleaned[1], 1)
         y_test = ["pos", "neg", "pos"]
         y_pred = ["neg", "pos", "neg"]
-        y_test_cleaned, y_pred_cleaned = self.mtr.clean_binary_classification(
+        y_test_cleaned, y_pred_cleaned = self.mdl.clean_binary_classification(
             y_test, y_pred
         )
         self.assertEqual(y_test_cleaned[0], 1)
@@ -94,10 +94,10 @@ class TestMetrics(unittest.TestCase, Metrics):
 
     def test_get_classification_metrics(self):
         classifier, features_lemma = self.training()
-        y_test, y_pred = self.mtr.prediction(
+        y_test, y_pred = self.mdl.prediction(
             classifier, "classify", features_lemma
         )
-        X_test, y_test = self.mtr.split_tuples(features_lemma)
+        X_test, y_test = self.mdl.split_tuples(features_lemma)
         params = {
             "model": classifier,
             "X_train": np.array(X_test),
@@ -106,7 +106,7 @@ class TestMetrics(unittest.TestCase, Metrics):
             "y_test": np.array(y_test),
             "y_pred": y_pred,
         }
-        metrics = self.mtr.get_classification_metrics(params)
+        metrics = self.mdl.get_classification_metrics(params)
         self.assertEqual(metrics["Loss"], 0)
         self.assertEqual(metrics["Accuracy"], 1.0)
         self.assertEqual(metrics["MCC"], 1.0)
@@ -114,7 +114,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         np.testing.assert_array_equal(metrics["Precision"], [1.0, 1.0])
         np.testing.assert_array_equal(metrics["Support"], [2, 2])
         params = {"y_test": np.array(y_test), "y_pred": y_pred}
-        metrics = self.mtr.get_classification_metrics(params)
+        metrics = self.mdl.get_classification_metrics(params)
         self.assertEqual(metrics["Loss"], 0)
         self.assertEqual(metrics["Accuracy"], 1.0)
         self.assertEqual(metrics["MCC"], 1.0)
@@ -137,7 +137,7 @@ class TestMetrics(unittest.TestCase, Metrics):
             "y_test": np.array(y_test),
             "y_pred": y_pred,
         }
-        metrics = self.mtr.get_classification_metrics(params)
+        metrics = self.mdl.get_classification_metrics(params)
         self.assertEqual(metrics["Loss"], 0.7443055555555557)
         self.assertEqual(metrics["Accuracy"], 0.6666666666666666)
         self.assertEqual(metrics["MCC"], 0.4802259242337604)
@@ -151,7 +151,7 @@ class TestMetrics(unittest.TestCase, Metrics):
         )
         model = SGDClassifier(random_state=3)
         model.fit(X_train, y_train)
-        metrics = self.mtr.scoring(model, X_test, y_test)
+        metrics = self.mdl.scoring(model, X_test, y_test)
         self.assertEqual(metrics["Accuracy"], 0.6666666666666666)
 
     def test_modeling(self):
@@ -160,19 +160,19 @@ class TestMetrics(unittest.TestCase, Metrics):
             data.data, data.target, test_size=0.2, random_state=5
         )
         model = SGDClassifier(random_state=3)
-        metrics = self.mtr.modeling(model, X_train, y_train, X_test, y_test)
+        metrics = self.mdl.modeling(model, X_train, y_train, X_test, y_test)
         self.assertEqual(metrics["Accuracy"], 0.6666666666666666)
 
     def test_manage_model(self):
         filename = "/tmp/save.model"
         classifier, features_lemma = self.training()
-        y_test1, y_pred1 = self.mtr.prediction(
+        y_test1, y_pred1 = self.mdl.prediction(
             classifier, "classify", features_lemma
         )
-        self.mtr.save_model(classifier, filename)
+        self.mdl.save_model(classifier, filename)
         self.assertFalse(os.stat(filename).st_size == 0)
-        model = self.mtr.resume_model(filename)
-        y_test2, y_pred2 = self.mtr.prediction(
+        model = self.mdl.resume_model(filename)
+        y_test2, y_pred2 = self.mdl.prediction(
             model, "classify", features_lemma
         )
         self.assertEqual(y_test1, y_test2)

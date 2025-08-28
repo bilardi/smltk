@@ -1,10 +1,13 @@
 klib
 mlxtend
 nltk
-Pillow
-requests
+numpy
+pandas
+pingouin
 scikit-learn
 seaborn
+simplemma
+snowballstemmer
+tokenizers
 torch
-torchvision
 wordcloud
