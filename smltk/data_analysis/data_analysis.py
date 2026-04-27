@@ -25,10 +25,21 @@ class DataAnalysis:
         >>> da = DataAnalysis()
         >>> features = da.get_eda(df)
         >>> print(features.keys())
-        ["data_amount", "hue_order", "categorical_features", "numerical_features", "data_missing", "correlations"]
+        ["data_amount", "hue_order", "categorical_features", "numerical_features", "data_missing", "relations"]
     """
 
     sklearn = None
+    VALID_BLOCK_NAMES = frozenset(
+        {
+            "cat_countplot",
+            "num_pairplot",
+            "feat_violinplots",
+            "feat_barplots",
+            "relations_heatmaps",
+            "missingval_plot",
+            "cat_plots",
+        }
+    )
 
     def __init__(self):
         self.sklearn = load_iris()
@@ -70,9 +81,9 @@ class DataAnalysis:
         """biserial (dichotomous, continuous-continuous)"""
         return pg.biserial(x, y)["r"].values[0]
 
-    def choose_correlations(self, x: pd.Series, y: pd.Series) -> dict:
+    def choose_relations(self, x: pd.Series, y: pd.Series) -> dict:
         """
-        Choose correlations based on data type
+        Choose relations based on data type
         """
         # binary check
         # x_clean = self._to_numeric_binary(x)
@@ -114,61 +125,57 @@ class DataAnalysis:
 
         return {"info": "Type not managed"}
 
-    def get_correlations(
+    def get_relations(
         self, data: pd.DataFrame, columns_to_use: list = []
     ) -> dict:
         """
-        Calculate correlation among features
+        Calculate relation among features
 
         Arguments:
             :data (Pandas DataFrame): features to analyze
             :columns_to_use (list[str]): list of features names to use
         Returns:
-            dictionary of Pandas Dataframe of the correlations
+            dictionary of Pandas Dataframe of the relations
         """
         if len(columns_to_use) == 0:
             columns_to_use = data.keys()
-        correlation_matrixes = {}
+        relation_matrixes = {}
         for index in columns_to_use:
-            inline_correlation_matrix = {}
+            inline_relation_matrix = {}
             for feature in columns_to_use:
                 df = data.copy()
                 if data[feature].isna().any():
                     df = data.dropna(subset=[feature])
                 if df[index].isna().any():
                     df = df.dropna(subset=[index])
-                correlations = self.choose_correlations(df[feature], df[index])
-                for correlation in correlations:
-                    if correlation == "info":
+                relations = self.choose_relations(df[feature], df[index])
+                for relation in relations:
+                    if relation == "info":
                         raise ValueError(
                             f"Type of {feature} and {index} not managed"
                         )
-                    if correlation not in inline_correlation_matrix.keys():
-                        inline_correlation_matrix[correlation] = []
-                    inline_correlation_matrix[correlation].append(
-                        correlations[correlation]
+                    if relation not in inline_relation_matrix.keys():
+                        inline_relation_matrix[relation] = []
+                    inline_relation_matrix[relation].append(
+                        relations[relation]
                     )
-            for correlation in correlations:
-                if correlation not in correlation_matrixes.keys():
-                    correlation_matrixes[correlation] = pd.DataFrame()
-                if (
-                    len(inline_correlation_matrix[correlation])
-                    == columns_to_use
+            for relation in relations:
+                if relation not in relation_matrixes.keys():
+                    relation_matrixes[relation] = pd.DataFrame()
+                if len(inline_relation_matrix[relation]) == len(
+                    columns_to_use
                 ):
-                    correlation_matrixes[correlation] = pd.concat(
+                    relation_matrixes[relation] = pd.concat(
                         [
-                            correlation_matrixes[correlation],
+                            relation_matrixes[relation],
                             pd.DataFrame(
-                                {
-                                    index: inline_correlation_matrix[
-                                        correlation
-                                    ]
-                                },
+                                {index: inline_relation_matrix[relation]},
                                 index=columns_to_use,
                             ),
-                        ]
+                        ],
+                        axis=1,
                     )
-        return correlation_matrixes
+        return relation_matrixes
 
     def get_features_info(
         self, target: str, data: pd.DataFrame, params: dict = {}
@@ -315,59 +322,55 @@ class DataAnalysis:
                     legend.remove()
             plt.show()
 
-        ## all features
+        ## relations among all features - heatmaps
         columns_to_use = features["numerical_features"] + [target]
-        correlations = self.get_correlations(data, columns_to_use)
+        relations = self.get_relations(data, columns_to_use)
         data_missing = pd.DataFrame(
             features["data_missing"].values(),
             columns=["data_missing"],
             index=features["data_missing"].keys(),
         )
-        for correlation in correlations:
-            if len(data_missing.columns) == len(correlations[correlation]):
-                fig, (ax1, ax2) = plt.subplots(
-                    1,
-                    2,
-                    figsize=(18, 8),
-                    gridspec_kw={"width_ratios": [0.5, 15]},
-                )
-                fig.suptitle(correlation)
-                correlation_data = pd.concat(
-                    [correlations[correlation], data_missing], axis=1
-                )
-                sns.heatmap(
-                    correlation_data[["data_missing"]],
-                    cmap=params["corr_plot.cmap"],
-                    annot=True,
-                    cbar=False,
-                    ax=ax1,
-                    yticklabels=True,
-                    xticklabels=True,
-                )
-                ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90)
-                correlation_no_dm = correlation_data.drop(
-                    columns="data_missing"
-                )
-                triangular_mask = np.triu(
-                    np.ones_like((correlation_no_dm + correlation_no_dm.T) / 2)
-                )
-                sns.heatmap(
-                    correlation_no_dm,
-                    mask=triangular_mask,
-                    cmap=params["corr_plot.cmap"],
-                    annot=True,
-                    cbar=True,
-                    ax=ax2,
-                    yticklabels=False,
-                )
-                plt.subplots_adjust(wspace=0.05)
-        features["correlations"] = correlations
-
-        if len(num_features) > 0:
-            klib.corr_plot(
-                data.sample(frac=params["sample.frac"]),
-                cmap=params["corr_plot.cmap"],
+        data_missing = data_missing.loc[columns_to_use]
+        for relation in relations:
+            fig, (ax1, ax2) = plt.subplots(
+                1,
+                2,
+                figsize=(18, 8),
+                gridspec_kw={"width_ratios": [0.5, 15]},
             )
+            fig.suptitle(relation)
+            relation_data = pd.concat(
+                [relations[relation], data_missing], axis=1
+            )
+            relations[relation] = relation_data
+            sns.heatmap(
+                relation_data[["data_missing"]],
+                cmap=params["corr_plot.cmap"],
+                annot=True,
+                cbar=False,
+                ax=ax1,
+                yticklabels=True,
+                xticklabels=True,
+            )
+            # ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90)
+            relation_no_dm = relation_data.drop(columns="data_missing")
+            triangular_mask = np.triu(
+                np.ones_like((relation_no_dm + relation_no_dm.T) / 2)
+            )
+            # sns.heatmap(
+            #     relation_no_dm,
+            #     mask=triangular_mask,
+            #     cmap=params["corr_plot.cmap"],
+            #     annot=True,
+            #     cbar=True,
+            #     ax=ax2,
+            #     yticklabels=False,
+            # )
+            # plt.subplots_adjust(wspace=0.05)
+            plt.show()
+        features["relations"] = relations
+
+        # data missing
         klib.missingval_plot(
             data.sample(frac=params["sample.frac"]),
             cmap=params["missingval_plot.cmap"],

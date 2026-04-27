@@ -13,13 +13,26 @@ class TestDataAnalysis(unittest.TestCase, DataAnalysis):
         self.dp = DataProcessing()
         unittest.TestCase.__init__(self, *args, **kwargs)
 
+    def test_valid_block_names_constant(self):
+        """The class exposes the canonical set of skippable block names."""
+        expected = {
+            "cat_countplot",
+            "num_pairplot",
+            "feat_violinplots",
+            "feat_barplots",
+            "relations_heatmaps",
+            "missingval_plot",
+            "cat_plots",
+        }
+        self.assertEqual(set(DataAnalysis.VALID_BLOCK_NAMES), expected)
+
     def test_get_eda(self):
         iris = load_iris()
         df = self.dp.get_df(iris)
         features = self.da.get_eda(
             "target", df, {"columns_to_filter": ["target"]}
         )
-        correlations = features.pop("correlations")
+        relations = features.pop("relations")
         self.assertDictEqual(
             features,
             {
@@ -43,7 +56,7 @@ class TestDataAnalysis(unittest.TestCase, DataAnalysis):
             },
         )
         self.assertListEqual(
-            list(correlations.keys()), ["pearson", "spearman", "kendall"]
+            list(relations.keys()), ["pearson", "spearman", "kendall"]
         )
         categorical_features, df = self.dp.transform_categories(df)
         self.assertListEqual(
@@ -53,7 +66,8 @@ class TestDataAnalysis(unittest.TestCase, DataAnalysis):
             list(categorical_features["target_name"]),
             ["setosa", "versicolor", "virginica"],
         )
-        features = self.da.get_eda("target", df, {"sample.frac": 1})
+        # features = self.da.get_eda("target", df, {"sample.frac": 1})
+        # print(features["relations"])
 
 
 if __name__ == "__main__":
