@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+from pandas.api.types import is_integer_dtype, is_float_dtype
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -52,6 +55,44 @@ class TestDataProcessing(unittest.TestCase, DataProcessing):
         fake = []
         df = self.dp.get_inference_df(fake, [], [], [])
         self.assertEqual(df.count().sum(), 0)
+
+    def is_there_nan(self, iris, original_df, numeric_list):
+        categorical_features, numeric_df = self.dp.transform_categories(
+            original_df.copy()
+        )
+        self.assertEqual(len(categorical_features.keys()), 1)
+        self.assertEqual(
+            len(categorical_features["target_name"]), len(iris["target_names"])
+        )
+        self.assertTrue(
+            is_integer_dtype(numeric_df["target_name"])
+            or is_float_dtype(numeric_df["target_name"])
+        )
+        self.assertEqual(
+            len(list(numeric_df["target_name"].unique())), len(numeric_list)
+        )
+        self.assertTrue(
+            np.allclose(
+                list(numeric_df["target_name"].unique()),
+                list(numeric_list),
+                equal_nan=True,
+            )
+        )
+
+    def test_transformation_categories(self):
+        iris = load_iris()
+        original_df = self.dp.get_df(iris)
+        self.is_there_nan(iris, original_df, [0, 1, 2])
+        original_df.loc[10, "target_name"] = np.nan
+        self.is_there_nan(
+            iris, original_df, np.array([0, np.nan, 1, 2], np.dtype("float64"))
+        )
+        original_df.loc[10, "target_name"] = None
+        self.is_there_nan(
+            iris, original_df, np.array([0, np.nan, 1, 2], np.dtype("float64"))
+        )
+        original_df.loc[10, "target_name"] = pd.NA
+        self.is_there_nan(iris, original_df, [0, np.nan, 1, 2])
 
     # textual data
     def test_get_tokens_cleaned(self):

@@ -3,7 +3,9 @@
 A collection of methods to simplify your code.
 """
 
+import numpy as np
 import pandas as pd
+from pandas.api.types import is_object_dtype, is_string_dtype
 import re
 from sklearn.datasets import load_iris
 import simplemma
@@ -108,7 +110,11 @@ class DataProcessing:
         if features is None:
             features = {"categorical_features": []}
             for feature in data.keys():
-                if data[feature].dtype == type(object):
+                if (
+                    is_string_dtype(data[feature])
+                    or is_object_dtype(data[feature])
+                    or all(isinstance(v, str) for v in data[feature].dropna())
+                ):
                     features["categorical_features"].append(feature)
         for feature in features["categorical_features"]:
             if feature in data.keys():
@@ -121,6 +127,7 @@ class DataProcessing:
                     data[feature] = pd.Categorical(
                         data[feature], categories=categorical_features[feature]
                     ).codes
+                data[feature] = data[feature].replace(-1, np.nan)
         return categorical_features, data
 
     # textual data
