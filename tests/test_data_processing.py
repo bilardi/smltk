@@ -190,6 +190,104 @@ class TestDataProcessing(unittest.TestCase, DataProcessing):
             self.default_doc_filtered,
         )
 
+    def test_build_variant_lookup_empty(self):
+        """Empty or None synonyms returns empty dict."""
+        self.assertEqual(self.dp._build_variant_lookup({}), {})
+        self.assertEqual(self.dp._build_variant_lookup(None), {})
+
+    def test_build_variant_lookup_basic(self):
+        """Inverts canonical->variants into variant->canonical."""
+        synonyms = {
+            "explore": ["exploration", "data exploration"],
+            "read": ["reading", "import or load dataset"],
+        }
+        result = self.dp._build_variant_lookup(synonyms)
+        self.assertEqual(
+            result,
+            {
+                "exploration": "explore",
+                "data exploration": "explore",
+                "reading": "read",
+                "import or load dataset": "read",
+            },
+        )
+
+    def test_build_variant_lookup_normalizes_variants(self):
+        """Variants are normalized to lowercase + strip."""
+        synonyms = {"explore": [" Exploration ", "DATA exploration"]}
+        result = self.dp._build_variant_lookup(synonyms)
+        self.assertEqual(
+            result,
+            {"exploration": "explore", "data exploration": "explore"},
+        )
+
+    def test_build_variant_lookup_overlapping_raises(self):
+        """Same variant in two groups raises ValueError."""
+        synonyms = {"a": ["x"], "b": ["x"]}
+        with self.assertRaises(ValueError) as ctx:
+            self.dp._build_variant_lookup(synonyms)
+        self.assertIn("x", str(ctx.exception))
+
+    def test_build_variant_lookup_canonical_as_variant_raises(self):
+        """A canonical of one group used as variant of another raises."""
+        synonyms = {"a": ["x"], "b": ["a"]}
+        with self.assertRaises(ValueError) as ctx:
+            self.dp._build_variant_lookup(synonyms)
+        self.assertIn("a", str(ctx.exception))
+
+    def test_harmonize_words_lowercase_and_lemma(self):
+        """Without synonyms: lowercase + lemma normalize variants."""
+        words = ["Cleaning", "cleaning", "Clean", "Statistics"]
+        result = self.dp.harmonize_words(words)
+        self.assertEqual(result, ["clean", "clean", "clean", "statistic"])
+
+    def test_harmonize_words_unknown_word(self):
+        """Word not recognized by lemmatizer survives lowercased."""
+        self.assertEqual(self.dp.harmonize_words(["Bho"]), ["bho"])
+
+    def test_harmonize_words_multi_token_without_synonyms(self):
+        """Multi-token entries are not lemmatized; only lowercased."""
+        self.assertEqual(
+            self.dp.harmonize_words(["Data exploration"]),
+            ["data exploration"],
+        )
+
+    def test_harmonize_words_none_and_empty(self):
+        """None passes through; empty/whitespace becomes empty string."""
+        result = self.dp.harmonize_words([None, "", "   "])
+        self.assertEqual(result, [None, "", ""])
+
+    def test_harmonize_words_with_synonyms(self):
+        """Synonyms map variants to canonical, both before and after lemma."""
+        words = [
+            "cleaning",
+            "Read",
+            "reading",
+            "Data exploration",
+            "Exploration",
+            "explore",
+        ]
+        synonyms = {
+            "explore": ["exploration", "data exploration"],
+            "read": ["reading", "import or load dataset"],
+        }
+        result = self.dp.harmonize_words(words, synonyms)
+        self.assertEqual(
+            result,
+            ["clean", "read", "read", "explore", "explore", "explore"],
+        )
+
+    def test_harmonize_words_overlapping_variants_raises(self):
+        """A variant mapped to two canonicals raises ValueError."""
+        synonyms = {"a": ["x"], "b": ["x"]}
+        with self.assertRaises(ValueError):
+            self.dp.harmonize_words(["x"], synonyms)
+
+    def test_harmonize_words_multilang(self):
+        """The lang parameter is accepted and applied."""
+        result = self.dp.harmonize_words(["Cleaning"], lang=["it", "en"])
+        self.assertEqual(result, ["clean"])
+
 
 if __name__ == "__main__":
     unittest.main()

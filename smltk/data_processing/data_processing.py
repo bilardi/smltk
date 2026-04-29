@@ -130,6 +130,78 @@ class DataProcessing:
                 data[feature] = data[feature].replace(-1, np.nan)
         return categorical_features, data
 
+    def _build_variant_lookup(self, synonyms: dict) -> dict:
+        """Invert synonyms (canonical->variants) into variant->canonical."""
+        if not synonyms:
+            return {}
+        canonicals = set(synonyms.keys())
+        lookup = {}
+        for canonical, variants in synonyms.items():
+            for variant in variants:
+                norm = variant.lower().strip()
+                if norm in canonicals and norm != canonical:
+                    raise ValueError(
+                        f"Variant '{norm}' is also a canonical of another "
+                        f"group"
+                    )
+                if norm in lookup and lookup[norm] != canonical:
+                    raise ValueError(
+                        f"Variant '{norm}' is mapped to both "
+                        f"'{lookup[norm]}' and '{canonical}'"
+                    )
+                lookup[norm] = canonical
+        return lookup
+
+    def harmonize_words(
+        self,
+        words: list,
+        synonyms: dict = None,
+        lang: list = None,
+    ) -> list:
+        """
+        Harmonize a list of words to a canonical form.
+
+        Args:
+            words: list of words/phrases (may contain None or NaN).
+            synonyms: optional dict mapping canonical -> list of variants.
+                Variants are normalized (lowercase + strip) automatically.
+            lang: optional list of languages for the lemmatizer.
+                Defaults to [self.language].
+
+        Returns:
+            list of words in canonical form, same length as input.
+                None is preserved as is; empty strings stay empty.
+
+        Raises:
+            ValueError: if a variant in synonyms maps to two different
+                canonical forms.
+        """
+        if lang is None:
+            lang = [self.language]
+        lookup = self._build_variant_lookup(synonyms)
+        lang_codes = tuple(l[:2] for l in lang)
+        result = []
+        for word in words:
+            if word is None or (isinstance(word, float) and np.isnan(word)):
+                result.append(word)
+                continue
+            norm = word.lower().strip()
+            if norm == "":
+                result.append("")
+                continue
+            if norm in lookup:
+                result.append(lookup[norm])
+                continue
+            if " " in norm:
+                lemma = norm
+            else:
+                lemma = simplemma.lemmatize(norm, lang_codes)
+            if lemma in lookup:
+                result.append(lookup[lemma])
+                continue
+            result.append(lemma)
+        return result
+
     # textual data
     def tokenize(self, doc: str) -> list:
         """
