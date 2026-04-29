@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-04-29
+
+### Added
+- in DataAnalysis.get_eda, the params analyses.skip and plots.skip to filter heavy EDA blocks (skip block entirely or skip its plots only)
+- DataAnalysis.VALID_BLOCK_NAMES class constant exposing the 7 semantic block names: cat_countplot, num_pairplot, feat_violinplots, feat_barplots, relations_heatmaps, missingval_plot, cat_plots
+- pingouin as runtime dependency, used by DataAnalysis.biserial_corr
+
+### Changed
+- renamed DataAnalysis.choose_correlations/get_correlations to choose_relations/get_relations and the return key features["correlations"] to features["relations"], since mutual info is a similarity score and not a correlation
+- DataProcessing.transform_categories detects categorical features more robustly (is_string_dtype/is_object_dtype plus element-wise string check)
+- DataAnalysis.choose_relations and get_features_info use pd.api.types.is_numeric_dtype/is_string_dtype/is_object_dtype for compatibility with newer pandas (StringDtype)
+- aligned Makefile build targets: removed twine from localbuild, added black/twine upgrade to buildtest and build
+
+### Fixed
+- DataAnalysis.get_relations inner length check (was comparing int to list, the inner block was never executed)
+- DataProcessing.transform_categories now preserves np.nan/None/pd.NA as NaN; previously the -1 codes from pd.Categorical(...).codes leaked into downstream calculations
+
+### Updated
+- tests: added test_transformation_categories, plus 9 tests for the EDA skip filter (test_valid_block_names_constant, test_is_skipped_*, test_get_eda_unknown_*, test_get_eda_skip_*); updated test_get_eda for the rename and added PLOTS_SKIP env var helper
+- documentation: updated DataAnalysis.get_eda docstring with the new params and fixed slitted -> split typo
+
 ## [3.0.0] - 2025-08-28
 
 ### Added
@@ -182,7 +203,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/bilardi/smltk/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/bilardi/smltk/compare/v2.2.11...v3.0.0
 [2.2.11]: https://github.com/bilardi/smltk/compare/v2.2.10...v2.2.11
 [2.2.10]: https://github.com/bilardi/smltk/compare/v2.2.9...v2.2.10

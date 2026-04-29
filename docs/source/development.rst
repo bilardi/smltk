@@ -19,6 +19,7 @@ It is important to test your code before to create a pull request.
     virtualenv .env
     source .env/bin/activate
     pip3 install --upgrade -r requirements.txt
+    pip3 install --upgrade -r requirements-dev.txt
     python3 -m unittest discover -v
     deactivate
 

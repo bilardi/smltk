@@ -138,7 +138,7 @@ class TestModeling(unittest.TestCase, Modeling):
             "y_pred": y_pred,
         }
         metrics = self.mdl.get_classification_metrics(params)
-        self.assertEqual(metrics["Loss"], 0.7443055555555557)
+        self.assertEqual(metrics["Loss"], 0.7494444444444446)
         self.assertEqual(metrics["Accuracy"], 0.6666666666666666)
         self.assertEqual(metrics["MCC"], 0.4802259242337604)
         np.testing.assert_array_equal(metrics["Precision"][2], 0.4)

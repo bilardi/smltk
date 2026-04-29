@@ -22,7 +22,7 @@ readme = { file = "README.rst", content-type = "text/x-rst" }
 authors = [{ name = "Alessandra Bilardi", email = "alessandra.bilardi@gmail.com" }]
 license = { text = "MIT" }
 requires-python = ">=3.12"
-dependencies = ["klib", "matplotlib", "mlxtend", "numpy", "pandas", "scikit-learn", "seaborn", "simplemma", "snowballstemmer", "tokenizers"]
+dependencies = ["klib", "matplotlib", "mlxtend", "numpy", "pandas", "pingouin", "scikit-learn", "seaborn", "simplemma", "snowballstemmer", "tokenizers"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -40,5 +40,5 @@ version = { attr = "smltk.__version__" }
 
 [project.optional-dependencies]
 ntk = ["nltk", "wordcloud"]
-object_detection = ["torch"]
-complete = ["nltk", "torch", "wordcloud"]
+object_detection = ["torch", "torchvision", "Pillow", "requests"]
+complete = ["nltk", "torch", "torchvision", "Pillow", "requests", "wordcloud"]

@@ -21,12 +21,14 @@ doc:
 
 .PHONY: localbuild # build package locally
 localbuild: clean
-	pip install black build twine
+	pip install black build
 	black .
 	python3 -m build; pip install dist/*whl
 
 .PHONY: buildtest # build package on testpypi
 buildtest: clean
+	pip install --upgrade black build twine
+	black .
 	python3 -m build; twine upload --repository testpypi dist/*
 
 .PHONY: installtest # install package from testpypi
@@ -35,6 +37,8 @@ installtest:
 
 .PHONY: build # build package on pypi
 build: clean
+	pip install --upgrade black build twine
+	black .
 	python3 -m build; twine upload dist/*
 
 .PHONY: install # install package from pypi
