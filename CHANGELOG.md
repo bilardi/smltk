@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-04-29
+
+### Added
+- `DataProcessing.harmonize_words(words, synonyms, lang)`: harmonizes a list of heterogeneous words into a canonical form, combining lowercase + lemmatization via `simplemma` (with optional `lang` list for multilang support) and an optional `synonyms` dict in the form `canonical -> list of variants`
+- private helper `DataProcessing._build_variant_lookup` with validation for overlapping variants (same variant in two groups) and canonical-as-variant cases (a canonical of one group used as variant of another)
+- "Build and release" section in `docs/source/development.rst` documenting the `Makefile` targets (`localbuild`, `buildtest`, `installtest`, `build`)
+
+### Updated
+- tests: 12 new tests for `_build_variant_lookup` and `harmonize_words` covering edge cases (`None` / `np.nan` / empty), lemma + lowercase normalization, multi-token entries, multilang lemmatizer, synonyms lookup, overlapping and canonical-as-variant validation
+
 ## [3.1.0] - 2026-04-29
 
 ### Added
@@ -203,7 +213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/bilardi/smltk/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/bilardi/smltk/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/bilardi/smltk/compare/v2.2.11...v3.0.0
 [2.2.11]: https://github.com/bilardi/smltk/compare/v2.2.10...v2.2.11
