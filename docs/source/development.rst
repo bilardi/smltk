@@ -32,3 +32,27 @@ If you want to test your code on the usage.ipynb
 
     cd smltk/
     docker run --rm -p 8888:8888 -e JUPYTER_ENABLE_LAB=yes -v "$PWD":/home/jovyan/ jupyter/datascience-notebook
+
+Build and release
+#################
+
+The ``Makefile`` exposes targets to build and release the package.
+
+To build and install the package locally:
+
+.. code-block:: bash
+
+    make localbuild
+
+To upload to Test PyPI and verify the install from there:
+
+.. code-block:: bash
+
+    make buildtest
+    make installtest
+
+To upload the official release to PyPI:
+
+.. code-block:: bash
+
+    make build
