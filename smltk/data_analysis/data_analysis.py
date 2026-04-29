@@ -92,8 +92,8 @@ class DataAnalysis:
         # is_y_binary = y.nunique() == 2
 
         # continuous-continuous
-        if np.issubdtype(x.dtype, np.number) and np.issubdtype(
-            y.dtype, np.number
+        if pd.api.types.is_numeric_dtype(x) and pd.api.types.is_numeric_dtype(
+            y
         ):
             return {
                 "pearson": self.pearson_corr(x, y),
@@ -115,9 +115,9 @@ class DataAnalysis:
         #     }
 
         # nominal categories
-        if not np.issubdtype(x.dtype, np.number) or not np.issubdtype(
-            y.dtype, np.number
-        ):
+        if not pd.api.types.is_numeric_dtype(
+            x
+        ) or not pd.api.types.is_numeric_dtype(y):
             return {
                 "cramers_v": self.cramers_v(x, y),
                 "mutual_info": self.mutual_info(x, y),
@@ -201,7 +201,9 @@ class DataAnalysis:
         for feature in data.columns:
             if feature in params["columns_to_filter"]:
                 continue
-            elif data[feature].dtype == type(object):
+            elif pd.api.types.is_string_dtype(
+                data[feature]
+            ) or pd.api.types.is_object_dtype(data[feature]):
                 cat_features.append(feature)
             else:
                 num_features.append(feature)
@@ -213,6 +215,24 @@ class DataAnalysis:
             "numerical_features": num_features,
             "data_missing": (data.isnull().mean() * 100).to_dict(),
         }
+
+    def _is_skipped(self, block_name: str, params: dict) -> tuple[bool, bool]:
+        """Return (skip_all, skip_plot) flags for a block."""
+        skip_all = block_name in params.get("analyses.skip", [])
+        skip_plot = block_name in params.get("plots.skip", [])
+        return skip_all, skip_plot
+
+    def _validate_skip_lists(self, params: dict) -> None:
+        """Raise ValueError on unknown names in skip lists."""
+        skip_all = set(params.get("analyses.skip", []))
+        skip_plot = set(params.get("plots.skip", []))
+        unknown = (skip_all | skip_plot) - self.VALID_BLOCK_NAMES
+        if unknown:
+            name = sorted(unknown)[0]
+            raise ValueError(
+                f"Unknown analysis name: '{name}'. "
+                f"Valid names: {sorted(self.VALID_BLOCK_NAMES)}"
+            )
 
     def get_eda(
         self, target: str, data: pd.DataFrame, params: dict = {}
@@ -229,9 +249,12 @@ class DataAnalysis:
             :sample.frac (string): fraction of axis items to return
             :corr_plot.cmap (string): the mapping from data values to color space, matplotlib colormap name or object, or list of colors, by default viridis
             :missingval_plot.cmap (string): matplotlib colormap name or object, by default Set2
+            :analyses.skip (list[str]): names of blocks to skip entirely (no calc, no plot). Valid names in DataAnalysis.VALID_BLOCK_NAMES.
+            :plots.skip (list[str]): names of blocks whose plots are skipped (calculations still performed). Relevant for relations_heatmaps which keeps populating features["relations"].
 
         Returns:
-            plots and features slitted in categorical and numerical features
+            plots and features split in categorical and numerical features.
+            Note: when relations_heatmaps is in analyses.skip, the "relations" key is omitted from the returned dict.
         """
         if "color_palette" not in params.keys():
             params["color_palette"] = "Set2"
@@ -242,139 +265,167 @@ class DataAnalysis:
         if "missingval_plot.cmap" not in params.keys():
             params["missingval_plot.cmap"] = "Set2"
 
+        self._validate_skip_lists(params)
+
         sns.set_palette(sns.color_palette(params["color_palette"]))
         features = self.get_features_info(target, data, params)
 
         ## categorical features - bar charts matrix
-        cat_features = features["categorical_features"]
-        plt.figure(figsize=(10, len(cat_features) * 2))
-        for i, col in enumerate(cat_features):
-            plt.subplot(len(cat_features) // 2 + 1, 2, i + 1)
-            sns.set_style("white")
-            sns.countplot(
-                x=col,
-                hue=target,
-                hue_order=features["hue_order"],
-                data=data.sample(frac=params["sample.frac"]),
-            )
-            plt.title(f"{col} vs {target}")
-            if len(features["hue_order"]) > 25:
-                legend = plt.gca().get_legend()
-                if legend is not None:
-                    legend.remove()
-            plt.tight_layout()
-        plt.show()
+        skip_all, skip_plot = self._is_skipped("cat_countplot", params)
+        if not skip_all and not skip_plot:
+            cat_features = features["categorical_features"]
+            plt.figure(figsize=(10, len(cat_features) * 2))
+            for i, col in enumerate(cat_features):
+                plt.subplot(len(cat_features) // 2 + 1, 2, i + 1)
+                sns.set_style("white")
+                sns.countplot(
+                    x=col,
+                    hue=target,
+                    hue_order=features["hue_order"],
+                    data=data.sample(frac=params["sample.frac"]),
+                )
+                plt.title(f"{col} vs {target}")
+                if len(features["hue_order"]) > 25:
+                    legend = plt.gca().get_legend()
+                    if legend is not None:
+                        legend.remove()
+                plt.tight_layout()
+            plt.show()
 
         ## numerical features - pair plots matrix
-        num_features = features["numerical_features"]
-        if len(num_features) > 0:
-            pairplot_features = (
-                num_features
-                if target in num_features
-                else num_features + [target]
-            )
-            sns.pairplot(
-                data[pairplot_features].sample(frac=params["sample.frac"]),
-                hue=target,
-                hue_order=features["hue_order"],
-                corner=True,
-            )
+        skip_all, skip_plot = self._is_skipped("num_pairplot", params)
+        if not skip_all and not skip_plot:
+            num_features = features["numerical_features"]
+            if len(num_features) > 0:
+                pairplot_features = (
+                    num_features
+                    if target in num_features
+                    else num_features + [target]
+                )
+                sns.pairplot(
+                    data[pairplot_features].sample(frac=params["sample.frac"]),
+                    hue=target,
+                    hue_order=features["hue_order"],
+                    corner=True,
+                )
 
         ## filtered features - violin plots matrix
-        filtered_features = cat_features + num_features
-        fig, axes = plt.subplots(
-            len(filtered_features) // 2,
-            2,
-            figsize=(10, len(filtered_features) * 2),
-        )
-        for i, ax in enumerate(axes.flatten()):
-            sns.violinplot(
-                x=target,
-                y=filtered_features[i],
-                data=data.sample(frac=params["sample.frac"]),
-                ax=ax,
-                hue=target,
-                hue_order=features["hue_order"],
+        skip_all, skip_plot = self._is_skipped("feat_violinplots", params)
+        if not skip_all and not skip_plot:
+            cat_features = features["categorical_features"]
+            num_features = features["numerical_features"]
+            filtered_features = cat_features + num_features
+            fig, axes = plt.subplots(
+                len(filtered_features) // 2,
+                2,
+                figsize=(10, len(filtered_features) * 2),
             )
-            ax.set_title(f"{filtered_features[i]} vs {target}")
-        plt.tight_layout()
-        plt.show()
+            for i, ax in enumerate(axes.flatten()):
+                sns.violinplot(
+                    x=target,
+                    y=filtered_features[i],
+                    data=data.sample(frac=params["sample.frac"]),
+                    ax=ax,
+                    hue=target,
+                    hue_order=features["hue_order"],
+                )
+                ax.set_title(f"{filtered_features[i]} vs {target}")
+            plt.tight_layout()
+            plt.show()
 
         ## filtered features - bar charts
-        custom_palette = sns.color_palette(
-            params["color_palette"], len(data[target].unique())
-        )
-        for feature in filtered_features:
-            contingency_table = pd.crosstab(
-                data[feature], data[target], normalize="index"
+        skip_all, skip_plot = self._is_skipped("feat_barplots", params)
+        if not skip_all and not skip_plot:
+            cat_features = features["categorical_features"]
+            num_features = features["numerical_features"]
+            filtered_features = cat_features + num_features
+            custom_palette = sns.color_palette(
+                params["color_palette"], len(data[target].unique())
             )
-            sns.set_style("white")
-            contingency_table.plot(
-                kind="bar", stacked=True, color=custom_palette, figsize=(20, 4)
-            )
-            plt.title(f"Percentage Distribution of Target across {feature}")
-            plt.xlabel(feature)
-            plt.ylabel("Percentage")
-            plt.legend(title="Target Class")
-            if len(features["hue_order"]) > 25:
-                legend = plt.gca().get_legend()
-                if legend is not None:
-                    legend.remove()
-            plt.show()
+            for feature in filtered_features:
+                contingency_table = pd.crosstab(
+                    data[feature], data[target], normalize="index"
+                )
+                sns.set_style("white")
+                contingency_table.plot(
+                    kind="bar",
+                    stacked=True,
+                    color=custom_palette,
+                    figsize=(20, 4),
+                )
+                plt.title(
+                    f"Percentage Distribution of Target across {feature}"
+                )
+                plt.xlabel(feature)
+                plt.ylabel("Percentage")
+                plt.legend(title="Target Class")
+                if len(features["hue_order"]) > 25:
+                    legend = plt.gca().get_legend()
+                    if legend is not None:
+                        legend.remove()
+                plt.show()
 
         ## relations among all features - heatmaps
-        columns_to_use = features["numerical_features"] + [target]
-        relations = self.get_relations(data, columns_to_use)
-        data_missing = pd.DataFrame(
-            features["data_missing"].values(),
-            columns=["data_missing"],
-            index=features["data_missing"].keys(),
-        )
-        data_missing = data_missing.loc[columns_to_use]
-        for relation in relations:
-            fig, (ax1, ax2) = plt.subplots(
-                1,
-                2,
-                figsize=(18, 8),
-                gridspec_kw={"width_ratios": [0.5, 15]},
+        skip_all, skip_plot = self._is_skipped("relations_heatmaps", params)
+        if not skip_all:
+            columns_to_use = features["numerical_features"] + [target]
+            relations = self.get_relations(data, columns_to_use)
+            data_missing = pd.DataFrame(
+                features["data_missing"].values(),
+                columns=["data_missing"],
+                index=features["data_missing"].keys(),
             )
-            fig.suptitle(relation)
-            relation_data = pd.concat(
-                [relations[relation], data_missing], axis=1
-            )
-            relations[relation] = relation_data
-            sns.heatmap(
-                relation_data[["data_missing"]],
-                cmap=params["corr_plot.cmap"],
-                annot=True,
-                cbar=False,
-                ax=ax1,
-                yticklabels=True,
-                xticklabels=True,
-            )
-            # ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90)
-            relation_no_dm = relation_data.drop(columns="data_missing")
-            triangular_mask = np.triu(
-                np.ones_like((relation_no_dm + relation_no_dm.T) / 2)
-            )
-            # sns.heatmap(
-            #     relation_no_dm,
-            #     mask=triangular_mask,
-            #     cmap=params["corr_plot.cmap"],
-            #     annot=True,
-            #     cbar=True,
-            #     ax=ax2,
-            #     yticklabels=False,
-            # )
-            # plt.subplots_adjust(wspace=0.05)
-            plt.show()
-        features["relations"] = relations
+            data_missing = data_missing.loc[columns_to_use]
+            for relation in relations:
+                relation_data = pd.concat(
+                    [relations[relation], data_missing], axis=1
+                )
+                relations[relation] = relation_data
+                if not skip_plot:
+                    fig, (ax1, ax2) = plt.subplots(
+                        1,
+                        2,
+                        figsize=(18, 8),
+                        gridspec_kw={"width_ratios": [0.5, 15]},
+                    )
+                    fig.suptitle(relation)
+                    sns.heatmap(
+                        relation_data[["data_missing"]],
+                        cmap=params["corr_plot.cmap"],
+                        annot=True,
+                        cbar=False,
+                        ax=ax1,
+                        yticklabels=True,
+                        xticklabels=True,
+                    )
+                    # ax1.set_xticklabels(ax1.get_xticklabels(), rotation=90)
+                    relation_no_dm = relation_data.drop(columns="data_missing")
+                    triangular_mask = np.triu(
+                        np.ones_like((relation_no_dm + relation_no_dm.T) / 2)
+                    )
+                    # sns.heatmap(
+                    #     relation_no_dm,
+                    #     mask=triangular_mask,
+                    #     cmap=params["corr_plot.cmap"],
+                    #     annot=True,
+                    #     cbar=True,
+                    #     ax=ax2,
+                    #     yticklabels=False,
+                    # )
+                    # plt.subplots_adjust(wspace=0.05)
+                    plt.show()
+            features["relations"] = relations
 
         # data missing
-        klib.missingval_plot(
-            data.sample(frac=params["sample.frac"]),
-            cmap=params["missingval_plot.cmap"],
-        )
-        klib.cat_plot(data.sample(frac=params["sample.frac"]))
+        skip_all, skip_plot = self._is_skipped("missingval_plot", params)
+        if not skip_all and not skip_plot:
+            klib.missingval_plot(
+                data.sample(frac=params["sample.frac"]),
+                cmap=params["missingval_plot.cmap"],
+            )
+
+        skip_all, skip_plot = self._is_skipped("cat_plots", params)
+        if not skip_all and not skip_plot:
+            klib.cat_plot(data.sample(frac=params["sample.frac"]))
 
         return features
