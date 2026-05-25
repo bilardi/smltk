@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.1] - 2026-05-26
+
+### Fixed
+- `DataProcessing.get_df` and `DataProcessing.get_inference_df` now skip the `target_name` column when the sklearn target dtype is not integer; previously regression datasets that expose `target_names` (e.g. `fetch_california_housing` with `target_names=["MedHouseVal"]`) raised `TypeError: list indices must be integers or slices, not float`
+
+### Added
+- 2 new tests (`test_get_df_sklearn_regression_with_target_names`, `test_get_inference_df_sklearn_regression_with_target_names`) using `fetch_california_housing` to cover regression with `target_names`
+
 ## [3.3.0] - 2026-05-26
 
 ### Changed
@@ -221,7 +229,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - the init files of package and tests
 - the documentation by sphinx
 
-[Unreleased]: https://github.com/bilardi/smltk/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/bilardi/smltk/compare/v3.3.1...HEAD
+[3.3.1]: https://github.com/bilardi/smltk/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/bilardi/smltk/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/bilardi/smltk/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/bilardi/smltk/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/bilardi/smltk/compare/v2.2.11...v3.0.0
