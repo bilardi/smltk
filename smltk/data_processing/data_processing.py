@@ -52,9 +52,10 @@ class DataProcessing:
         """
         if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(data.target, columns=["target"])
-            df["target_name"] = df["target"].apply(
-                lambda x: data.target_names[x]
-            )
+            if hasattr(data, "target_names"):
+                df["target_name"] = df["target"].apply(
+                    lambda x: data.target_names[x]
+                )
             return pd.concat(
                 [df, pd.DataFrame(data.data, columns=data.feature_names)],
                 axis=1,
@@ -74,9 +75,10 @@ class DataProcessing:
         """
         if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(y_test, columns=["target"])
-            df["target_name"] = df["target"].apply(
-                lambda x: data.target_names[x]
-            )
+            if hasattr(data, "target_names"):
+                df["target_name"] = df["target"].apply(
+                    lambda x: data.target_names[x]
+                )
             return pd.concat(
                 [
                     pd.DataFrame(y_pred, columns=["prediction"]),
