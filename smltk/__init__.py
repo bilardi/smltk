@@ -16,5 +16,5 @@ Package contents two classes to manage data preprocessing, testing and reporting
 # support https://github.com/bilardi/smltk/issues
 """
 
-__version__ = "3.2.0"
+__version__ = "3.3.0"
 __author__ = "Alessandra Bilardi"

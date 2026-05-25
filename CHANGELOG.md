@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-05-26
+
+### Changed
+- `DataProcessing.get_df` and `DataProcessing.get_inference_df` now work with regression datasets (no `target_names` required); the `target_name` column is added only when `data.target_names` exists
+
+### Added
+- 2 new tests (`test_get_df_sklearn_regression`, `test_get_inference_df_sklearn_regression`) using `load_diabetes` to cover regression flow
+
 ## [3.2.0] - 2026-04-29
 
 ### Added
