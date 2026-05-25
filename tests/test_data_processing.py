@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pandas.api.types import is_integer_dtype, is_float_dtype
-from sklearn.datasets import load_diabetes, load_iris
+from sklearn.datasets import fetch_california_housing, load_diabetes, load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 import unittest
@@ -65,6 +65,29 @@ class TestDataProcessing(unittest.TestCase, DataProcessing):
         _ = model.fit(x_train, y_train)
         y_pred = model.predict(x_test)
         df = self.dp.get_inference_df(diabetes, x_test, y_test, y_pred)
+        self.assertListEqual(df["prediction"].tolist(), y_pred.tolist())
+        self.assertNotIn("target_name", df.columns)
+        self.assertListEqual(df["target"].tolist(), y_test.tolist())
+
+    def test_get_df_sklearn_regression_with_target_names(self):
+        ch = fetch_california_housing()
+        df = self.dp.get_df(ch)
+        self.assertNotIn("target_name", df.columns)
+        self.assertListEqual(df["target"].tolist(), ch.target.tolist())
+        self.assertListEqual(
+            sorted(c for c in df.columns if c != "target"),
+            sorted(ch.feature_names),
+        )
+
+    def test_get_inference_df_sklearn_regression_with_target_names(self):
+        ch = fetch_california_housing()
+        x_train, x_test, y_train, y_test = train_test_split(
+            ch.data, ch.target, test_size=0.2, random_state=3
+        )
+        model = DecisionTreeRegressor(random_state=0)
+        _ = model.fit(x_train, y_train)
+        y_pred = model.predict(x_test)
+        df = self.dp.get_inference_df(ch, x_test, y_test, y_pred)
         self.assertListEqual(df["prediction"].tolist(), y_pred.tolist())
         self.assertNotIn("target_name", df.columns)
         self.assertListEqual(df["target"].tolist(), y_test.tolist())

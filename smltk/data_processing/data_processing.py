@@ -52,7 +52,9 @@ class DataProcessing:
         """
         if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(data.target, columns=["target"])
-            if hasattr(data, "target_names"):
+            if hasattr(data, "target_names") and pd.api.types.is_integer_dtype(
+                df["target"]
+            ):
                 df["target_name"] = df["target"].apply(
                     lambda x: data.target_names[x]
                 )
@@ -75,7 +77,9 @@ class DataProcessing:
         """
         if isinstance(data, type(self.sklearn)):
             df = pd.DataFrame(y_test, columns=["target"])
-            if hasattr(data, "target_names"):
+            if hasattr(data, "target_names") and pd.api.types.is_integer_dtype(
+                df["target"]
+            ):
                 df["target_name"] = df["target"].apply(
                     lambda x: data.target_names[x]
                 )
